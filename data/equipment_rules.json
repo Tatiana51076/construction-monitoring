@@ -1,0 +1,22 @@
+{
+  "Подготовка территории": {
+    "equipment": ["bulldozer", "truck"],
+    "min_counts": { "bulldozer": 1, "truck": 1 }
+  },
+  "Устройство котлована": {
+    "equipment": ["excavator", "dump_truck"],
+    "min_counts": { "excavator": 1, "dump_truck": 2 }
+  },
+  "Устройство фундамента": {
+    "equipment": ["concrete_mixer", "truck_crane"],
+    "min_counts": { "concrete_mixer": 1, "truck_crane": 1 }
+  },
+  "Монолит и каркас": {
+    "equipment": ["truck_crane", "manipulator_crane"],
+    "min_counts": { "truck_crane": 1, "manipulator_crane": 1 }
+  },
+  "Дорожные работы": {
+    "equipment": ["roller", "dump_truck"],
+    "min_counts": { "roller": 1, "dump_truck": 1 }
+  }
+}

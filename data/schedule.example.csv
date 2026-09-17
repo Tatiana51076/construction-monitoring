@@ -1,0 +1,6 @@
+object_id,name,zone,contractor,plan_start,plan_end,required_equipment,min_counts,confirm_threshold,fact_percent,zone_type,min_people
+OBJ-1,Подготовка территории,A,ООО СтройМонтаж,2026-07-01,2026-07-05,bulldozer|truck,bulldozer:1|truck:1,0.6,100,area,1
+OBJ-1,Устройство котлована,A,ООО СтройМонтаж,2026-07-06,2026-07-20,excavator|dump_truck,excavator:1|dump_truck:2,0.6,40,area,1
+OBJ-1,Устройство фундамента,B,ООО ФундаментСтрой,2026-07-21,2026-08-05,concrete_mixer|truck_crane,concrete_mixer:1|truck_crane:1,0.7,0,area,1
+OBJ-1,Монолит и каркас,B,ООО ФундаментСтрой,2026-08-06,2026-08-31,truck_crane|manipulator_crane,truck_crane:1|manipulator_crane:1,0.7,0,area,1
+OBJ-1,Дорожные работы,C,ООО ДорСервис,2026-09-01,2026-09-15,roller|dump_truck,roller:1|dump_truck:1,0.6,0,linear,1
