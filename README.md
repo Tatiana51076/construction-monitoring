@@ -116,8 +116,10 @@ data/
   equipment_rules.json  # правила работа → техника
 frontend/app.py         # Streamlit-дашборд
 TZ.md                   # ТЗ v0.2
+docs/DEV_REQUIREMENTS.md # требования для разработчика: бизнес-правила BR + критерии приёмки
 docs/REQUIREMENTS.md    # требования и правила сверки (выжимка)
 docs/MODEL.md           # модель данных, ограничения
+docs/mockup-obektiv-0.4.html # макет «Объектив 0.4» (гайд по экранам/цветам/формулам)
 tests/run_all.py        # прогон тестов без pytest
 requirements-lite.txt   # лёгкие зависимости (без YOLO/PyTorch)
 run.ps1 / run.sh        # запуск одной командой
