@@ -32,7 +32,40 @@
 - **Frontend:** Streamlit (быстро) — легко заменить на React
 - **Docker:** `docker-compose.yml`
 
-## Быстрый старт (локально)
+## Что скинуть участникам
+
+- **Посмотреть проект и дать обратную связь** — ставить ничего не нужно, достаточно ссылки
+  на репозиторий: https://github.com/Tatiana51076/construction-monitoring
+- **Запустить локально** — нужен Python 3.10+ и ~2 минуты на установку лёгких зависимостей
+  (**YOLO/PyTorch не требуются**).
+
+## Быстрый старт (лёгкий режим, без YOLO/PyTorch)
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/Tatiana51076/construction-monitoring.git
+cd construction-monitoring
+powershell -ExecutionPolicy Bypass -File .\run.ps1
+```
+
+**macOS / Linux:**
+```bash
+git clone https://github.com/Tatiana51076/construction-monitoring.git
+cd construction-monitoring
+bash run.sh
+```
+
+Остановить: `.\stop.ps1` (Windows) или закрыть терминалы.
+
+- API (Swagger): http://localhost:8000/docs
+- Дашборд: http://localhost:8501
+
+> **Лёгкий режим** (`.venv` + `requirements-lite.txt`, ~100 МБ): работают API, дашборд,
+> график, дедуп, статусы и правила. Распознавание техники (YOLO) отключено.
+> Для реальной детекции: `pip install ultralytics` (тянет PyTorch ~2 ГБ) — для демонстрации
+> интерфейса не обязательно. LLM-импортёр графиков — отдельный модуль (другой участник).
+
+## Быстрый старт (полный, с YOLO)
 
 ```bash
 cd backend
@@ -59,6 +92,9 @@ docker compose up --build
 - API: http://localhost:8000/docs
 - Dashboard: http://localhost:8501
 
+> Docker собирается в **лёгком режиме** (без YOLO/PyTorch). Для детекции техники
+> замените в `backend/Dockerfile` `requirements-lite.txt` на `requirements.txt`.
+
 ## Структура
 
 ```
@@ -79,10 +115,13 @@ data/
   schedule.example.csv  # пример графика (каноническая форма)
   equipment_rules.json  # правила работа → техника
 frontend/app.py         # Streamlit-дашборд
-docs/TZ.md              # ТЗ v0.2
+TZ.md                   # ТЗ v0.2
 docs/REQUIREMENTS.md    # требования и правила сверки (выжимка)
 docs/MODEL.md           # модель данных, ограничения
 tests/run_all.py        # прогон тестов без pytest
+requirements-lite.txt   # лёгкие зависимости (без YOLO/PyTorch)
+run.ps1 / run.sh        # запуск одной командой
+stop.ps1                # остановить серверы
 ```
 
 ## Статусы и правила (ТЗ v0.2)

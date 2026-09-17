@@ -1,0 +1,9 @@
+# Backend в лёгком режиме — для Docker без YOLO/PyTorch.
+# Полный набор (с детекцией) — в requirements.txt
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+SQLAlchemy
+python-dotenv
+pandas

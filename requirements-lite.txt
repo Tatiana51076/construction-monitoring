@@ -1,0 +1,11 @@
+# Лёгкий режим: API + дашборд + тесты БЕЗ YOLO/PyTorch (~100 МБ вместо ~2.5 ГБ).
+# Для реального распознавания техники дополнительно: pip install ultralytics
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+SQLAlchemy
+python-dotenv
+pandas
+streamlit
+requests
