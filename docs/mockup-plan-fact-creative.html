@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Объектив · План и факт по работам — концепт</title>
+<style>
+:root{
+  --ground:#E4E6E1; --paper:#FBFBF9; --paper2:#F1F2EE; --paper3:#E9EAE5;
+  --ink:#1B1D1C; --ink2:#43473F; --muted:#6E726B; --faint:#8E938A;
+  --rule:#C7CAC2; --rule2:#DCDED7;
+  --blue:#1B5C8A; --blue-soft:#E2ECF3;
+  --ok:#2E7A4E; --ok-soft:#DFEDE4;
+  --warn:#A06712; --warn-soft:#F4E9D4;
+  --bad:#AC3529; --bad-soft:#F5E1DE;
+  --done:#7C8079; --done-soft:#E5E7E1;
+  --ui:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 var(--ui);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 20px 90px}
+h1{font-size:30px;letter-spacing:-.02em;margin:0 0 6px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono)}
+
+/* HERO */
+.hero{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:22px;margin-top:14px;box-shadow:0 1px 0 rgba(0,0,0,.03)}
+.hero .top{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:flex-start}
+.hero h2{margin:0;font-size:20px}
+.hero .sub{font-size:12.5px;color:var(--muted);font-family:var(--mono);margin-top:5px}
+.verdict{font-size:15px;color:var(--ink2);margin-top:12px;max-width:70ch}
+.verdict b{color:var(--bad)}
+
+.bigroad{position:relative;height:52px;margin:18px 0 6px;border-radius:10px;background:var(--paper2);border:1px solid var(--rule2);overflow:hidden}
+.bigroad .done{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2E7A4E,#3E9A63);border-radius:10px 0 0 10px}
+.bigroad .haz{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#AC3529 0 6px,#8f2b21 6px 12px);opacity:.85}
+.bigroad .pm{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--ink);box-shadow:0 0 0 2px var(--paper)}
+.bigroad .cap{position:absolute;bottom:-24px;font:11px var(--mono);color:var(--muted)}
+.roadkeys{display:flex;gap:16px;flex-wrap:wrap;margin-top:30px;font-size:12px;color:var(--ink2)}
+.roadkeys span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)} .dot.none{background:var(--done)}
+.hazkey{width:16px;height:11px;display:inline-block;background:repeating-linear-gradient(135deg,#AC3529 0 4px,#8f2b21 4px 8px);border-radius:2px}
+.pmkey{width:3px;height:14px;display:inline-block;background:var(--ink)}
+
+.counts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.count{display:flex;align-items:center;gap:9px;border:1px solid var(--rule2);background:var(--paper2);border-radius:999px;padding:7px 13px;font-size:13px}
+.count b{font-family:var(--mono);font-size:15px}
+.count.bad{background:var(--bad-soft);border-color:var(--bad)} .count.bad b{color:var(--bad)}
+.count.warn{background:var(--warn-soft);border-color:var(--warn)} .count.warn b{color:var(--warn)}
+.count.ok{background:var(--ok-soft);border-color:var(--ok)} .count.ok b{color:var(--ok)}
+
+/* ACTION */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+@media(max-width:820px){.actions{grid-template-columns:1fr}}
+.act{border:2px solid var(--bad);background:var(--bad-soft);border-radius:var(--r);padding:16px;position:relative;overflow:hidden}
+.act.warn{border-color:var(--warn);background:var(--warn-soft)}
+.act h3{margin:0 0 4px;font-size:16px}
+.act p{margin:0 0 12px;font-size:13px;color:var(--ink2)}
+.act .why{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.act .go{display:inline-flex;align-items:center;gap:8px;font:600 12.5px var(--ui);border:1px solid var(--ink);background:var(--paper);padding:9px 13px;border-radius:8px;cursor:pointer}
+.act .go:hover{background:var(--ink);color:var(--paper)}
+.act .lagbig{position:absolute;right:14px;top:12px;font:700 22px var(--mono);color:var(--bad)}
+.act.warn .lagbig{color:var(--warn)}
+
+/* TOGGLE */
+.toggle{display:inline-flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden;margin:26px 0 14px;background:var(--paper)}
+.toggle button{font:600 13px var(--ui);padding:10px 18px;border:0;background:transparent;cursor:pointer;color:var(--ink2)}
+.toggle button.on{background:var(--ink);color:var(--paper)}
+
+/* ROAD LANES */
+.view{display:none}
+.view.on{display:block}
+.lane{display:grid;grid-template-columns:1.25fr 3.2fr auto;gap:16px;align-items:center;background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px;margin-bottom:10px}
+.lane.problem{border-color:var(--bad);background:linear-gradient(90deg,var(--bad-soft),var(--paper) 45%)}
+.lane.calm{border-color:var(--ok)}
+.lane .who b{display:block;font-size:15px}
+.lane .who span{font-size:11.5px;color:var(--muted)}
+.lane .who .flag{display:inline-block;font:700 9.5px var(--mono);letter-spacing:.05em;color:#fff;background:var(--bad);padding:3px 6px;border-radius:4px;margin-top:6px}
+.lane.problem .who .flag{display:inline-block}
+.lane .who .flag.hidden{display:none}
+.road{position:relative;height:38px;border-radius:9px;background:var(--paper3);border:1px solid var(--rule2);overflow:hidden}
+.road .done{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2E7A4E,#43A56B);border-radius:9px 0 0 9px}
+.road.problem .done{background:linear-gradient(90deg,#7a2a22,#AC3529)}
+.road .haz{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#AC3529 0 5px,#8f2b21 5px 10px);opacity:.9}
+.road .pm{position:absolute;top:-5px;bottom:-5px;width:3px;background:var(--ink);box-shadow:0 0 0 2px var(--paper)}
+.road .finish{position:absolute;right:0;top:0;bottom:0;width:10px;background:repeating-linear-gradient(45deg,#1B1D1C 0 4px,#FBFBF9 4px 8px);border-left:1px solid var(--ink)}
+.road .car{position:absolute;top:50%;width:16px;height:16px;margin-top:-8px;margin-left:-8px;background:var(--paper);border:3px solid var(--ink);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.road .car::after{content:"";position:absolute;left:50%;top:-9px;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--ink)}
+.lane .meta{text-align:right;white-space:nowrap}
+.lane .meta .d{font:700 20px/1 var(--mono)}
+.lane .meta .d.bad{color:var(--bad)} .lane .meta .d.warn{color:var(--warn)} .lane .meta .d.ok{color:var(--ok)} .lane .meta .d.none{color:var(--done)}
+.lane .meta .cap{font-size:10.5px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
+.lane .meta .chip{display:inline-block;margin-top:8px;font:700 9.5px var(--mono);letter-spacing:.04em;padding:4px 7px;border-radius:5px;border:1px solid;white-space:nowrap}
+.chip.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.chip.warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.chip.bad{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
+.chip.none{color:var(--done);border-color:var(--rule);background:var(--done-soft)}
+.lane .why{margin-top:8px;font:11.5px var(--mono);color:var(--ink2)}
+
+/* WALL */
+.wall{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.wall{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.wall{grid-template-columns:1fr}}
+.col{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:12px;min-height:120px}
+.col h4{margin:0 0 10px;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.col.bad{border-top:4px solid var(--bad)} .col.bad h4{color:var(--bad)}
+.col.warn{border-top:4px solid var(--warn)} .col.warn h4{color:var(--warn)}
+.col.ok{border-top:4px solid var(--ok)} .col.ok h4{color:var(--ok)}
+.col.none{border-top:4px solid var(--done)} .col.none h4{color:var(--done)}
+.cardw{border:1px solid var(--rule2);border-radius:9px;padding:11px;margin-bottom:9px;background:var(--paper2);cursor:default;transition:transform .15s,box-shadow .15s}
+.cardw:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.07)}
+.cardw b{font-size:13.5px;display:block}
+.cardw .c{font-size:11px;color:var(--muted);margin-top:2px}
+.cardw .r{display:flex;justify-content:space-between;align-items:center;margin-top:9px}
+.cardw .r .d{font:700 14px var(--mono)}
+.cardw.bad .r .d{color:var(--bad)} .cardw.warn .r .d{color:var(--warn)} .cardw.ok .r .d{color:var(--ok)}
+.cardw .mini{height:7px;background:var(--paper3);border:1px solid var(--rule2);border-radius:4px;margin-top:9px;position:relative;overflow:hidden}
+.cardw .mini i{position:absolute;left:0;top:0;bottom:0;background:var(--ok)}
+.cardw.bad .mini i{background:var(--bad)}
+
+.legend{display:flex;gap:16px 22px;flex-wrap:wrap;margin:22px 0 0;font-size:12.5px;color:var(--ink2)}
+footer{margin-top:40px;border-top:2px solid var(--ink);padding-top:14px;font:11.5px/1.65 var(--mono);color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  .lane.problem .road .haz{animation:blink 1.6s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:.95}50%{opacity:.5}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Объект: план и факт по работам</h1>
+  <p class="muted" style="margin:0">Концепт для Дениса. Ощущение дороги: каждая работа едет к своему сроку, видно, кто не доехал.</p>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="top">
+      <div>
+        <h2>ЖК «Северный», корпус 2</h2>
+        <div class="sub">СЕГОДНЯ 4 СЕН 2026 · ПЯТИДНЕВКА · 3 КАМЕРЫ · 6 РАБОТ</div>
+      </div>
+      <div class="counts">
+        <span class="count bad"><i class="dot bad"></i>требует реакции <b>2</b></span>
+        <span class="count warn"><i class="dot warn"></i>спросить причину <b>1</b></span>
+        <span class="count ok"><i class="dot ok"></i>идёт <b>2</b></span>
+        <span class="count"><i class="dot none"></i>вне охвата <b>1</b></span>
+      </div>
+    </div>
+
+    <p class="verdict">По графику объект должен быть готов на <b class="mono">52 %</b>,
+       камера подтверждает <b class="mono">31 %</b>. Разрыв — это примерно <b>6 рабочих дней</b> отставания.</p>
+
+    <div class="bigroad">
+      <div class="done" style="width:31%"></div>
+      <div class="haz" style="left:31%;width:21%"></div>
+      <div class="pm" style="left:52%"></div>
+      <div class="finish"></div>
+    </div>
+    <div class="roadkeys">
+      <span><i class="dot ok"></i>подтверждено камерой 31 %</span>
+      <span><i class="hazkey"></i>отставание до плана 21 п.п. (≈6 дней)</span>
+      <span><i class="pmkey"></i>план на сегодня 52 %</span>
+      <span>финиш — 100 %</span>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <div class="act">
+      <div class="lagbig">+6 дн</div>
+      <h3>Армирование, зона 2</h3>
+      <p class="why">закрыто на 100 %, камера не видела технику 0 из 5 дней</p>
+      <button class="go">Связаться · Сафин Р. →</button>
+    </div>
+    <div class="act warn">
+      <div class="lagbig">+3 дн</div>
+      <h3>Бетонирование, секция C</h3>
+      <p class="why">техника стоит 4 дня подряд, признаков движения нет</p>
+      <button class="go">Спросить причину · Дёмин П. →</button>
+    </div>
+  </div>
+
+  <!-- TOGGLE -->
+  <div class="toggle">
+    <button class="on" data-view="road">Дорога к сроку</button>
+    <button data-view="wall">Стена приоритетов</button>
+  </div>
+
+  <!-- VIEW: ROAD -->
+  <div class="view on" id="view-road">
+
+    <div class="lane problem">
+      <div class="who"><b>Армирование, зона 2</b><span>ООО СтройМонтаж</span><span class="flag">ТРЕБУЕТ РЕАКЦИИ</span></div>
+      <div>
+        <div class="road problem">
+          <div class="done" style="width:12%"></div>
+          <div class="haz" style="left:12%;width:56%"></div>
+          <div class="pm" style="left:68%"></div>
+          <div class="car" style="left:12%"></div>
+          <div class="finish"></div>
+        </div>
+        <div class="why">план 68 % · подтверждено 12 % · заявлено 100 %</div>
+      </div>
+      <div class="meta"><div class="d bad">+6 дн</div><div class="cap">к сроку</div><span class="chip bad">НИЧЕГО НЕ ОБНАРУЖЕНО</span></div>
+    </div>
+
+    <div class="lane problem">
+      <div class="who"><b>Бетонирование, секция C</b><span>ООО ФундаментСтрой</span><span class="flag">ТРЕБУЕТ РЕАКЦИИ</span></div>
+      <div>
+        <div class="road problem">
+          <div class="done" style="width:30%"></div>
+          <div class="haz" style="left:30%;width:25%"></div>
+          <div class="pm" style="left:55%"></div>
+          <div class="car" style="left:30%"></div>
+          <div class="finish"></div>
+        </div>
+        <div class="why">план 55 % · подтверждено 30 % · простой 4 дня</div>
+      </div>
+      <div class="meta"><div class="d warn">+3 дн</div><div class="cap">к сроку</div><span class="chip warn">ТОЛЬКО РЕСУРСЫ</span></div>
+    </div>
+
+    <div class="lane problem">
+      <div class="who"><b>Монолит, секция C</b><span>ООО ФундаментСтрой</span><span class="flag hidden">.</span></div>
+      <div>
+        <div class="road problem">
+          <div class="done" style="width:25%"></div>
+          <div class="haz" style="left:25%;width:25%"></div>
+          <div class="pm" style="left:50%"></div>
+          <div class="car" style="left:25%"></div>
+          <div class="finish"></div>
+        </div>
+        <div class="why">план 50 % · подтверждено 25 % · заявлено 55 %</div>
+      </div>
+      <div class="meta"><div class="d bad">+4 дн</div><div class="cap">к сроку</div><span class="chip bad">НИЧЕГО НЕ ОБНАРУЖЕНО</span></div>
+    </div>
+
+    <div class="lane calm">
+      <div class="who"><b>Котлован, зона A</b><span>ООО СтройМонтаж</span><span class="flag hidden">.</span></div>
+      <div>
+        <div class="road">
+          <div class="done" style="width:40%"></div>
+          <div class="pm" style="left:40%"></div>
+          <div class="car" style="left:40%"></div>
+          <div class="finish"></div>
+        </div>
+        <div class="why">план 40 % · подтверждено 40 % · ровный ритм</div>
+      </div>
+      <div class="meta"><div class="d ok">0 дн</div><div class="cap">к сроку</div><span class="chip ok">РАБОТА ИДЁТ</span></div>
+    </div>
+
+    <div class="lane calm">
+      <div class="who"><b>Фундамент, зона B</b><span>ООО ФундаментСтрой</span><span class="flag hidden">.</span></div>
+      <div>
+        <div class="road">
+          <div class="done" style="width:35%"></div>
+          <div class="pm" style="left:35%"></div>
+          <div class="car" style="left:35%"></div>
+          <div class="finish"></div>
+        </div>
+        <div class="why">план 35 % · подтверждено 35 %</div>
+      </div>
+      <div class="meta"><div class="d ok">0 дн</div><div class="cap">к сроку</div><span class="chip ok">РАБОТА ИДЁТ</span></div>
+    </div>
+
+    <div class="lane">
+      <div class="who"><b>Фасад и отделка, захватка 1</b><span>не проверяется · нет видимых признаков</span><span class="flag hidden">.</span></div>
+      <div>
+        <div class="road" style="opacity:.55">
+          <div class="done" style="width:0%"></div>
+          <div class="finish"></div>
+        </div>
+        <div class="why">работа вне охвата камер — «0» не значит «всё хорошо»</div>
+      </div>
+      <div class="meta"><div class="d none">—</div><div class="cap">нет данных</div><span class="chip none">НЕ ПРОВЕРЯЕТСЯ</span></div>
+    </div>
+
+  </div>
+
+  <!-- VIEW: WALL -->
+  <div class="view" id="view-wall">
+    <div class="wall">
+
+      <div class="col bad">
+        <h4>Требует реакции <span>2</span></h4>
+        <div class="cardw bad">
+          <b>Армирование, зона 2</b><div class="c">ООО СтройМонтаж · закрыто 100 %</div>
+          <div class="mini"><i style="width:12%"></i></div>
+          <div class="r"><span class="chip bad">НИЧЕГО НЕ ОБНАРУЖЕНО</span><span class="d">+6 дн</span></div>
+        </div>
+        <div class="cardw bad">
+          <b>Монолит, секция C</b><div class="c">ООО ФундаментСтрой</div>
+          <div class="mini"><i style="width:25%"></i></div>
+          <div class="r"><span class="chip bad">НИЧЕГО НЕ ОБНАРУЖЕНО</span><span class="d">+4 дн</span></div>
+        </div>
+      </div>
+
+      <div class="col warn">
+        <h4>Спросить причину <span>1</span></h4>
+        <div class="cardw warn">
+          <b>Бетонирование, секция C</b><div class="c">ООО ФундаментСтрой · простой 4 дня</div>
+          <div class="mini"><i style="width:30%"></i></div>
+          <div class="r"><span class="chip warn">ТОЛЬКО РЕСУРСЫ</span><span class="d">+3 дн</span></div>
+        </div>
+      </div>
+
+      <div class="col ok">
+        <h4>Идёт <span>2</span></h4>
+        <div class="cardw ok">
+          <b>Котлован, зона A</b><div class="c">ООО СтройМонтаж</div>
+          <div class="mini"><i style="width:40%"></i></div>
+          <div class="r"><span class="chip ok">РАБОТА ИДЁТ</span><span class="d">0 дн</span></div>
+        </div>
+        <div class="cardw ok">
+          <b>Фундамент, зона B</b><div class="c">ООО ФундаментСтрой</div>
+          <div class="mini"><i style="width:35%"></i></div>
+          <div class="r"><span class="chip ok">РАБОТА ИДЁТ</span><span class="d">0 дн</span></div>
+        </div>
+      </div>
+
+      <div class="col none">
+        <h4>Вне охвата <span>1</span></h4>
+        <div class="cardw">
+          <b>Фасад и отделка, захватка 1</b><div class="c">нет видимых признаков с камеры</div>
+          <div class="r"><span class="chip none">НЕ ПРОВЕРЯЕТСЯ</span><span class="d" style="color:var(--done)">—</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot ok"></i> работа идёт</span>
+    <span><i class="dot warn"></i> только ресурсы — спросить причину</span>
+    <span><i class="dot bad"></i> ничего не обнаружено</span>
+    <span><i class="dot none"></i> не проверяется</span>
+    <span><i class="pmkey"></i> план на сегодня</span>
+    <span><i class="hazkey"></i> отставание</span>
+    <span>финиш — 100 %</span>
+  </div>
+
+  <footer>
+    ОБЪЕКТИВ · КОНЦЕПТ ЭКРАНА ОБЪЕКТА · ПЛАН И ФАКТ ПО РАБОТАМ · К ОБСУЖДЕНИЮ С ДЕНИСОМ<br>
+    «Дорога к сроку»: круг — где работа сейчас, чёрточка — где должна быть по плану, штриховка — сколько не доехала.
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('.toggle button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.toggle button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+    document.getElementById('view-' + b.getAttribute('data-view')).classList.add('on');
+  });
+});
+</script>
+</body>
+</html>
