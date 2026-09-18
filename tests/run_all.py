@@ -10,7 +10,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "backend"))
 
-MODULES = ["test_dedup", "test_engine", "test_daylevel"]
+MODULES = ["test_dedup", "test_engine", "test_daylevel", "test_schedule"]
 
 
 def main() -> int:

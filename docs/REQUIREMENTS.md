@@ -66,6 +66,9 @@
 | `fact_percent` | да | факт, % |
 | `zone_type` | да | `area` / `linear` |
 | `fact_start`, `fact_end` | нет | факт даты |
+| `report_date` | нет | на какую дату заявлено «выполнено» |
+| `author` | нет | кто проставил процент |
+| `fact_source` | нет | откуда факт: `plan_column` / `weekly_report` / `ks2` / `manual` |
 | `responsible` | нет | ответственный (человек) → адресность замечаний |
 | `volume`, `unit` | нет | объём и ед. изм. |
 | `predecessors` | нет | зависимости → объяснение причины (root cause) |

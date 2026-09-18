@@ -82,6 +82,9 @@ def load_schedule(csv_path: str) -> List[Work]:
     c_contr = _col(df, "contractor", "исполнитель")
     c_zt = _col(df, "zone_type")
     c_mp = _col(df, "min_people")
+    c_fsrc = _col(df, "fact_source", "источник факта")
+    c_rep = _col(df, "report_date", "дата отчёта")
+    c_auth = _col(df, "author", "автор")
 
     works: List[Work] = []
     for _, row in df.iterrows():
@@ -101,6 +104,9 @@ def load_schedule(csv_path: str) -> List[Work]:
             fact_percent=_num(row, c_fact, 0.0),
             zone_type=str(_val(row, c_zt, "area") or "area"),
             min_people=int(_num(row, c_mp, 1)),
+            fact_source=str(_val(row, c_fsrc, "") or "") or None,
+            report_date=str(_val(row, c_rep, "") or "") or None,
+            author=str(_val(row, c_auth, "") or "") or None,
             source=csv_path,
         ))
     return works

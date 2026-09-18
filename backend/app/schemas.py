@@ -57,6 +57,9 @@ class Work(BaseModel):
     zone_type: str = "area"           # area | linear
     fact_start: Optional[str] = None
     fact_end: Optional[str] = None
+    fact_source: Optional[str] = None   # plan_column | weekly_report | ks2 | manual
+    report_date: Optional[str] = None   # на какую дату заявлено «выполнено»
+    author: Optional[str] = None        # кто проставил процент
     responsible: Optional[str] = None
     volume: Optional[float] = None
     unit: Optional[str] = None
