@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Объектив · экран объекта — концепт v2</title>
+<style>
+:root{
+  --ground:#E4E6E1; --paper:#FBFBF9; --paper2:#F1F2EE; --paper3:#E9EAE5;
+  --ink:#1B1D1C; --ink2:#43473F; --muted:#6E726B; --faint:#8E938A;
+  --rule:#C7CAC2; --rule2:#DCDED7;
+  --blue:#1B5C8A; --blue-soft:#E2ECF3;
+  --ok:#2E7A4E; --ok-soft:#DFEDE4;
+  --warn:#A06712; --warn-soft:#F4E9D4;
+  --bad:#AC3529; --bad-soft:#F5E1DE;
+  --done:#7C8079; --done-soft:#E5E7E1;
+  --ui:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 var(--ui);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:26px 20px 90px}
+h1{font-size:29px;letter-spacing:-.02em;margin:0 0 6px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono)}
+
+/* HERO / NET */
+.hero{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:20px 22px;margin-top:14px}
+.hero .top{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-start}
+.hero h2{margin:0;font-size:20px}
+.hero .sub{font-size:12.5px;color:var(--muted);font-family:var(--mono);margin-top:5px}
+.netbadge{font:700 13px var(--ui);padding:9px 14px;border-radius:999px;white-space:nowrap}
+.netbadge.ok{color:#fff;background:var(--ok)}
+.netbadge.bad{color:#fff;background:var(--bad)}
+.netbadge.warn{color:#fff;background:var(--warn)}
+.netline{margin-top:14px;font-size:14.5px;color:var(--ink2);max-width:82ch}
+.netline b{color:var(--ink)}
+
+.scale{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:16px}
+.side{display:flex;flex-direction:column;gap:6px}
+.side.right{align-items:flex-end}
+.track{width:100%;height:16px;background:var(--paper3);border:1px solid var(--rule2);border-radius:8px;overflow:hidden;display:flex}
+.side.left .track{justify-content:flex-end}
+.side .fill{height:100%}
+.fill.neg{background:linear-gradient(90deg,#2E7A4E,#43A56B)}
+.fill.pos{background:linear-gradient(90deg,#8f2b21,#AC3529)}
+.side .cap{font:11.5px var(--mono);color:var(--muted)}
+.side .cap b{font-size:14px}
+.side.left .cap b{color:var(--ok)} .side.right .cap b{color:var(--bad)}
+.center{text-align:center;font:700 12px var(--mono);color:var(--muted);line-height:1.3}
+.center b{display:block;font-size:22px;color:var(--ink)}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:820px){.cards{grid-template-columns:1fr}}
+.card{border-radius:var(--r);padding:16px;border:1px solid var(--rule);background:var(--paper)}
+.card.weak{border:2px solid var(--bad);background:var(--bad-soft)}
+.card.weak h3{margin:0 0 6px;font-size:16px;color:var(--bad)}
+.card.weak .who{font-size:13px;color:var(--ink2)}
+.card.weak .imp{font:700 22px var(--mono);color:var(--bad);margin:8px 0 2px}
+.card.weak .why{font:11.5px var(--mono);color:var(--ink2)}
+.card .go{margin-top:10px;display:inline-block;font:600 12.5px var(--ui);border:1px solid var(--ink);background:var(--paper);padding:9px 13px;border-radius:8px;cursor:pointer}
+.card .go:hover{background:var(--ink);color:var(--paper)}
+.card.supply{border-color:var(--warn);background:var(--warn-soft)}
+.card.supply h3{margin:0 0 6px;font-size:16px;color:var(--warn)}
+
+/* TABS */
+.tabs{display:inline-flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden;margin:24px 0 12px;background:var(--paper);flex-wrap:wrap}
+.tabs button{font:600 13px var(--ui);padding:10px 18px;border:0;background:transparent;cursor:pointer;color:var(--ink2)}
+.tabs button.on{background:var(--ink);color:var(--paper)}
+.subtabs{display:inline-flex;gap:6px;margin:0 0 12px 12px}
+.subtabs button{font:600 12px var(--ui);padding:7px 12px;border:1px solid var(--rule);background:var(--paper);border-radius:999px;cursor:pointer;color:var(--ink2)}
+.subtabs button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.view{display:none}.view.on{display:block}
+
+/* ROAD */
+.lane{display:grid;grid-template-columns:1.3fr 3.2fr auto;gap:16px;align-items:center;background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:13px 16px;margin-bottom:10px}
+.lane.problem{border-color:var(--bad);background:linear-gradient(90deg,var(--bad-soft),var(--paper) 42%)}
+.lane.ahead{border-color:var(--ok)}
+.lane .who b{display:block;font-size:14.5px}
+.lane .who span{font-size:11.5px;color:var(--muted)}
+.tagx{display:inline-block;font:700 9.5px var(--mono);letter-spacing:.05em;padding:3px 6px;border-radius:5px;margin-top:6px;color:#fff}
+.tagx.bad{background:var(--bad)} .tagx.ok{background:var(--ok)} .tagx.none{background:var(--done)}
+.road{position:relative;height:36px;border-radius:9px;background:var(--paper3);border:1px solid var(--rule2);overflow:hidden}
+.road .done{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2E7A4E,#43A56B)}
+.road.problem .done{background:linear-gradient(90deg,#7a2a22,#AC3529)}
+.road .haz{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#AC3529 0 5px,#8f2b21 5px 10px);opacity:.9}
+.road .pm{position:absolute;top:-5px;bottom:-5px;width:3px;background:var(--ink);box-shadow:0 0 0 2px var(--paper)}
+.road .finish{position:absolute;right:0;top:0;bottom:0;width:10px;background:repeating-linear-gradient(45deg,#1B1D1C 0 4px,#FBFBF9 4px 8px);border-left:1px solid var(--ink)}
+.road .car{position:absolute;top:50%;width:15px;height:15px;margin-top:-7.5px;margin-left:-7.5px;background:var(--paper);border:3px solid var(--ink);border-radius:50%}
+.lane .meta{text-align:right;white-space:nowrap}
+.lane .meta .d{font:700 19px/1 var(--mono)}
+.d.bad{color:var(--bad)} .d.warn{color:var(--warn)} .d.ok{color:var(--ok)} .d.none{color:var(--done)}
+.lane .meta .cap{font-size:10.5px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
+.lane .meta .chip{display:inline-block;margin-top:7px;font:700 9.5px var(--mono);letter-spacing:.04em;padding:4px 7px;border-radius:5px;border:1px solid;white-space:nowrap}
+.chip.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.chip.warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.chip.bad{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
+.chip.none{color:var(--done);border-color:var(--rule);background:var(--done-soft)}
+.lane .why{margin-top:7px;font:11.5px var(--mono);color:var(--ink2)}
+
+/* CALENDAR */
+.cal{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px}
+.calhead,.calrow{display:grid;gap:6px;align-items:center}
+.calhead{margin-bottom:8px;font:700 10.5px var(--mono);letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
+.calhead div,.calrow .name{font-size:11px}
+.calrow{margin-bottom:6px}
+.calrow .name{font-size:12.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell{height:26px;border-radius:6px;background:var(--paper3);border:1px solid var(--rule2);position:relative}
+.cell.today{box-shadow:inset 0 0 0 2px var(--blue)}
+.blk{height:26px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font:600 10.5px var(--mono);color:#fff;overflow:hidden;white-space:nowrap}
+.blk.ok{background:var(--ok)} .blk.warn{background:var(--warn)} .blk.bad{background:var(--bad)} .blk.none{background:var(--done)} .blk.ahead{background:#2E7A4E}
+.daygrid .calrow{grid-template-columns:130px repeat(11,1fr)}
+.monthgrid .calrow,.weekgrid .calrow{grid-template-columns:150px repeat(var(--n),1fr)}
+.ev{height:26px;border-radius:6px;background:var(--blue-soft);border:1px solid var(--blue);color:var(--blue);font:600 10px var(--mono);display:flex;align-items:center;padding:0 7px;white-space:nowrap;overflow:hidden}
+.ev.late{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.legendrow{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--ink2)}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)} .dot.none{background:var(--done)}
+.hazkey{width:16px;height:11px;display:inline-block;background:repeating-linear-gradient(135deg,#AC3529 0 4px,#8f2b21 4px 8px);border-radius:2px}
+.pmkey{width:3px;height:14px;display:inline-block;background:var(--ink)}
+
+/* SUPPLIES */
+.sup{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+.sup table{width:100%;border-collapse:collapse;font-size:13.5px}
+.sup th{font:700 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 12px;background:var(--paper2);border-bottom:1px solid var(--rule)}
+.sup td{padding:11px 12px;border-bottom:1px solid var(--rule2);vertical-align:top}
+.sup tr:last-child td{border-bottom:0}
+.sup .crit{font:700 9.5px var(--mono);color:var(--bad);border:1px solid var(--bad);background:var(--bad-soft);padding:3px 6px;border-radius:4px}
+.sup .late{color:var(--bad);font-weight:700}
+.sup .ontime{color:var(--ok)}
+.sup .mutedrow{color:var(--muted)}
+
+.legend{display:flex;gap:14px 20px;flex-wrap:wrap;margin:20px 0 0;font-size:12.5px;color:var(--ink2)}
+footer{margin-top:36px;border-top:2px solid var(--ink);padding-top:14px;font:11.5px/1.65 var(--mono);color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Экран объекта · концепт v2</h1>
+  <p class="muted" style="margin:0">«Дорога» остаётся. Добавлены: итог по объекту с компенсацией, слабое звено, день/неделя/месяц и поставки.</p>
+
+  <!-- HERO: NET -->
+  <div class="hero">
+    <div class="top">
+      <div>
+        <h2>ЖК «Северный», корпус 2</h2>
+        <div class="sub">СЕГОДНЯ 4 СЕН 2026 · ПЯТИДНЕВКА · 3 КАМЕРЫ · 6 РАБОТ</div>
+      </div>
+      <div class="netbadge ok">СРОК НЕ СДВИГАЕТСЯ · КОМПЕНСИРОВАНО</div>
+    </div>
+    <p class="netline">Локально отстают <b>2 работы (+9 дней)</b>, но <b>3 работы идут с опережением (−9 дней)</b> —
+       бригады переброшены. <b>Итог по объекту: 0 дней, штрафа не будет.</b>
+       При этом виден источник проблемы — <b>поставщик арматуры</b>.</p>
+
+    <div class="scale">
+      <div class="side left">
+        <div class="track"><div class="fill neg" style="width:100%"></div></div>
+        <div class="cap"><b>−9 дн</b> · опережение (можно перебросить)</div>
+      </div>
+      <div class="center">ИТОГ<b>0 дн</b>срок держится</div>
+      <div class="side right">
+        <div class="track"><div class="fill pos" style="width:100%"></div></div>
+        <div class="cap"><b>+9 дн</b> · отставание (критический путь)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards">
+    <div class="card weak">
+      <h3>Слабое звено</h3>
+      <div class="who">Поставщик арматуры «ООО МеталлПрофиль» — 3 сорванные поставки</div>
+      <div class="imp">+6 дней</div>
+      <div class="why">стоит «Армирование, зона 2» · сорван график бетонирования · срок объекта скомпенсирован опережением</div>
+      <button class="go">Разобрать поставки →</button>
+    </div>
+    <div class="card supply">
+      <h3>Что держит срок</h3>
+      <div class="who">Опережение на монолите, котловане и фундаменте</div>
+      <div class="imp" style="color:var(--ok)">−9 дней</div>
+      <div class="why">свободные бригады переброшены на смежные фронты — перепростоя не произошло</div>
+      <button class="go">Показать переброску →</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <button class="on" data-view="road">Дорога к сроку</button>
+    <button data-view="cal">Календарь (день · неделя · месяц)</button>
+    <button data-view="sup">Поставки</button>
+  </div>
+
+  <!-- ROAD -->
+  <div class="view on" id="view-road"></div>
+
+  <!-- CALENDAR -->
+  <div class="view" id="view-cal">
+    <div class="subtabs" id="subtabs">
+      <button data-scale="month">Месяц</button>
+      <button class="on" data-scale="week">Неделя</button>
+      <button data-scale="day">День</button>
+    </div>
+    <div class="cal" id="cal"></div>
+  </div>
+
+  <!-- SUPPLIES -->
+  <div class="view" id="view-sup"></div>
+
+  <div class="legend">
+    <span><i class="dot ok"></i> работа идёт</span>
+    <span><i class="dot warn"></i> только ресурсы — спросить причину</span>
+    <span><i class="dot bad"></i> ничего не обнаружено</span>
+    <span><i class="dot none"></i> не проверяется</span>
+    <span><i class="pmkey"></i> план на сегодня</span>
+    <span><i class="hazkey"></i> отставание</span>
+  </div>
+
+  <footer>
+    ОБЪЕКТИВ · ЭКРАН ОБЪЕКТА · КОНЦЕПТ v2 · К ОБСУЖДЕНИЮ<br>
+    Итог по объекту = отставания критического пути − компенсация опережением. Слабое звено = причина простоя,
+    привязанная к конкретному поставщику.
+  </footer>
+</div>
+
+<script>
+const WORKS = [
+  {name:'Армирование, зона 2', c:'ООО СтройМонтаж', status:'bad', lag:+6, plan:68, fact:12, declared:100,
+   note:'стоит: не пришла арматура', mark:'ТРЕБУЕТ РЕАКЦИИ', mStart:1,mSpan:3, wStart:1,wSpan:4},
+  {name:'Бетонирование, секция C', c:'ООО ФундаментСтрой', status:'warn', lag:+3, plan:55, fact:30, declared:60,
+   note:'ждём бетон · простой 4 дня', mark:'ТРЕБУЕТ РЕАКЦИИ', mStart:2,mSpan:2, wStart:3,wSpan:3},
+  {name:'Монолит, секция C', c:'ООО ФундаментСтрой', status:'ok', lag:-3, plan:50, fact:56, declared:56,
+   note:'опережение — бригаду можно перебросить', mark:'ОПЕРЕЖЕНИЕ', mStart:1,mSpan:3, wStart:1,wSpan:5},
+  {name:'Котлован, зона A', c:'ООО СтройМонтаж', status:'ok', lag:-4, plan:40, fact:47, declared:47,
+   note:'опережение — свободные ресурсы', mark:'ОПЕРЕЖЕНИЕ', mStart:1,mSpan:2, wStart:1,wSpan:3},
+  {name:'Фундамент, зона B', c:'ООО ФундаментСтрой', status:'ok', lag:-2, plan:35, fact:39, declared:39,
+   note:'опережение', mark:'ОПЕРЕЖЕНИЕ', mStart:2,mSpan:2, wStart:2,wSpan:3},
+  {name:'Фасад и отделка, захватка 1', c:'не проверяется', status:'none', lag:null,
+   note:'нет видимых признаков с камеры', mark:'', mStart:4,mSpan:2, wStart:5,wSpan:3},
+];
+
+const STATUSLABEL = {ok:'РАБОТА ИДЁТ', warn:'ТОЛЬКО РЕСУРСЫ', bad:'НИЧЕГО НЕ ОБНАРУЖЕНО', none:'НЕ ПРОВЕРЯЕТСЯ'};
+
+function renderRoad(){
+  const host = document.getElementById('view-road');
+  host.innerHTML = WORKS.map(function(w){
+    const isProblem = (w.status==='bad'||w.status==='warn');
+    const ahead = (w.lag!==null && w.lag<0);
+    const lagTxt = w.lag===null ? '—' : (w.lag>0?'+'+w.lag:'−'+Math.abs(w.lag));
+    const lagCls = w.lag===null?'none':(w.lag>0?(w.status==='warn'?'warn':'bad'):'ok');
+    const plan = w.plan!=null?w.plan:0, fact = w.fact!=null?w.fact:0;
+    const haz = (plan>fact) ? '<div class="haz" style="left:'+fact+'%;width:'+(plan-fact)+'%"></div>' : '';
+    const tag = w.mark ? '<span class="tagx '+(ahead?'ok':(isProblem?'bad':'none'))+'">'+w.mark+'</span>' : '';
+    const why = (w.plan!=null)
+      ? ('план '+plan+'% · подтверждено '+fact+'%'+(w.declared!=null?' · заявлено '+w.declared+'%':''))
+      : w.note;
+    return ''
+    + '<div class="lane '+(isProblem?'problem':(ahead?'ahead':''))+'">'
+    +   '<div class="who"><b>'+w.name+'</b><span>'+w.c+'</span>'+tag+'</div>'
+    +   '<div><div class="road '+(isProblem?'problem':'')+(w.status==='none'?'" style="opacity:.55':'')+'">'
+    +      '<div class="done" style="width:'+fact+'%"></div>'
+    +      haz
+    +      '<div class="pm" style="left:'+plan+'%"></div>'
+    +      '<div class="car" style="left:'+fact+'%"></div>'
+    +      '<div class="finish"></div>'
+    +   '</div><div class="why">'+why+'</div></div>'
+    +   '<div class="meta"><div class="d '+lagCls+'">'+lagTxt+(w.lag!==null?' дн':'')+'</div>'
+    +     '<div class="cap">'+(ahead?'опережение':'к сроку')+'</div>'
+    +     '<span class="chip '+w.status+'">'+STATUSLABEL[w.status]+'</span></div>'
+    + '</div>';
+  }).join('');
+}
+
+const MONTH_COLS = ['Нед 1','Нед 2','Нед 3','Нед 4','Нед 5'];
+const WEEK_COLS  = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const HOURS = ['08','09','10','11','12','13','14','15','16','17','18'];
+
+function renderEvents(events){
+  const n = HOURS.length;
+  const slots = new Array(n).fill(null);
+  (events||[]).forEach(function(e){ for(let k=0;k<e.span && e.start+k<n;k++) slots[e.start+k]=e; });
+  let html='', i=0;
+  while(i<n){
+    const e = slots[i];
+    if(e){
+      let j=i; while(j<n && slots[j]===e) j++;
+      html += '<div class="'+(e.late?'ev late':'ev')+'" style="grid-column:span '+(j-i)+'">'+e.label+'</div>';
+      i=j;
+    } else {
+      let j=i; while(j<n && !slots[j]) j++;
+      html += '<div class="cell" style="grid-column:span '+(j-i)+'"></div>';
+      i=j;
+    }
+  }
+  return html;
+}
+
+function renderCal(scale){
+  const host = document.getElementById('cal');
+  let html = '';
+
+  if(scale==='month'){
+    html += '<div class="calhead monthgrid" style="--n:5"><div>Работа</div>'+MONTH_COLS.map(function(x){return '<div>'+x+'</div>';}).join('')+'</div>';
+    WORKS.forEach(function(w){
+      let cells='';
+      for(let i=1;i<=5;i++){
+        const inside = (i>=w.mStart && i< w.mStart+w.mSpan);
+        cells += inside ? '<div class="blk '+w.status+'">'+(i===w.mStart?w.name.split(',')[0]:'')+'</div>' : '<div class="cell"></div>';
+      }
+      html += '<div class="calrow monthgrid" style="--n:5"><div class="name">'+w.name+'</div>'+cells+'</div>';
+    });
+  }
+
+  if(scale==='week'){
+    html += '<div class="calhead weekgrid" style="--n:7"><div>Работа</div>'+WEEK_COLS.map(function(x,i){return '<div style="'+(i===3?'color:var(--blue)':'')+'">'+x+'</div>';}).join('')+'</div>';
+    WORKS.forEach(function(w){
+      let cells='';
+      for(let i=1;i<=7;i++){
+        const inside = (i>=w.wStart && i< w.wStart+w.wSpan);
+        cells += inside ? '<div class="blk '+w.status+'">'+(i===w.wStart?w.name.split(',')[0]:'')+'</div>' : '<div class="cell'+(i===4?' today':'')+'"></div>';
+      }
+      html += '<div class="calrow weekgrid" style="--n:7"><div class="name">'+w.name+'</div>'+cells+'</div>';
+    });
+  }
+
+  if(scale==='day'){
+    html += '<div class="calhead daygrid"><div>Работа / событие</div>'+HOURS.map(function(h){return '<div>'+h+':00</div>';}).join('')+'</div>';
+
+    // критические поставки дня
+    html += '<div class="calrow daygrid"><div class="name">арматура А500С · план 09:00</div>'
+         +  renderEvents([{start:1, span:2, label:'НЕ ПРИШЛА 09:00', late:true}]) + '</div>';
+    html += '<div class="calrow daygrid"><div class="name">бетон B25 · план 08:00</div>'
+         +  renderEvents([{start:3, span:2, label:'+3 Ч', late:true}]) + '</div>';
+
+    // работы дня
+    const dayPlan = {
+      'Армирование, зона 2': [{start:0, span:4, label:'НЕТ РАБОТ', late:true}],
+      'Бетонирование, секция C': [{start:0, span:3, label:'СТОИТ'},{start:3, span:4, label:'ЖДЁМ БЕТОН'}],
+      'Монолит, секция C': [{start:0, span:5, label:'РАБОТА ИДЁТ'},{start:6, span:4, label:'РАБОТА ИДЁТ'}],
+      'Котлован, зона A': [{start:0, span:9, label:'РАБОТА ИДЁТ'}],
+      'Фундамент, зона B': [{start:0, span:9, label:'РАБОТА ИДЁТ'}],
+      'Фасад и отделка, захватка 1': [{start:0, span:9, label:'ВНЕ ОХВАТА'}],
+    };
+    WORKS.forEach(function(w){
+      html += '<div class="calrow daygrid"><div class="name">'+w.name+'</div>'+renderEvents(dayPlan[w.name]||[])+'</div>';
+    });
+  }
+
+  host.innerHTML = html;
+}
+
+function renderSupplies(){
+  const rows = [
+    {item:'Арматура А500С, Ø12', sup:'ООО МеталлПрофиль', plan:'2 сен, 09:00', fact:'не пришла', crit:true, blocks:'Армирование, зона 2', late:true},
+    {item:'Бетон B25', sup:'ООО БетонСтрой', plan:'4 сен, 08:00', fact:'4 сен, 11:00', crit:true, blocks:'Бетонирование, C', late:true},
+    {item:'Опалубка щитовая', sup:'ООО Опалубка+', plan:'3 сен', fact:'3 сен', crit:true, blocks:'Монолит, C', late:false},
+    {item:'Песок, щебень', sup:'ООО ИнертТрейд', plan:'1 сен', fact:'1 сен', crit:false, blocks:'—', late:false},
+  ];
+  let html = '<div class="sup"><table><thead><tr>'
+    + '<th>Позиция</th><th>Поставщик</th><th>План</th><th>Факт</th><th>Критично</th><th>Блокирует</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    html += '<tr>'
+      + '<td>'+r.item+'</td>'
+      + '<td>'+r.sup+'</td>'
+      + '<td class="mono">'+r.plan+'</td>'
+      + '<td class="'+(r.late?'late':'ontime')+'">'+r.fact+'</td>'
+      + '<td>'+(r.crit?'<span class="crit">КРИТИЧНО</span>':'<span class="muted">нет</span>')+'</td>'
+      + '<td class="'+(r.crit?'':'mutedrow')+'">'+r.blocks+'</td>'
+      + '</tr>';
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('view-sup').innerHTML = html;
+}
+
+document.querySelectorAll('#tabs button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#tabs button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+    document.getElementById('view-'+b.getAttribute('data-view')).classList.add('on');
+  });
+});
+document.querySelectorAll('#subtabs button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#subtabs button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    renderCal(b.getAttribute('data-scale'));
+  });
+});
+
+renderRoad();
+renderCal('week');
+renderSupplies();
+</script>
+</body>
+</html>
