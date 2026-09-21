@@ -1,0 +1,25 @@
+@startuml Жизненный_цикл_фото
+!theme plain
+title Состояния фото
+
+[*] --> draft : прораб снял
+draft --> queued : подтвердил (нет сети)
+queued --> uploading : появилась связь
+uploading --> uploaded : на сервере
+uploading --> failed : ошибка
+failed --> uploading : повтор
+uploaded --> processing : нейросеть
+processing --> processed : параметры качества
+processed --> under_review : у руководителя
+under_review --> accepted : принято
+under_review --> partial : частично
+under_review --> rework : на доработку
+under_review --> rejected : отклонено
+accepted --> [*]
+partial --> [*]
+rejected --> [*]
+rework --> draft : переснять
+
+note right of queued : фото хранится на телефоне,\nпока нет связи
+note right of processed : нейросеть не выносит вердикт —\nтолько признаки
+@enduml

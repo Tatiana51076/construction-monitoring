@@ -1,0 +1,94 @@
+@startuml Модель_данных
+!theme plain
+title Приложение прораба — модель данных
+
+class Object {
+  + id : UUID
+  --
+  name : string
+}
+
+class Brigade {
+  + id : UUID
+  --
+  object_id : UUID
+  name : string
+  members : int
+}
+
+class Work {
+  + id : UUID
+  --
+  object_id : UUID
+  brigade_id : UUID
+  name : string
+  zone : string
+  plan_start : date
+  plan_end : date
+  required_features : string
+}
+
+class Task {
+  + id : UUID
+  --
+  work_id : UUID
+  brigade_id : UUID
+  date : date
+  status : enum
+}
+
+class Shot {
+  + local_uuid : UUID
+  --
+  task_id : UUID
+  file_local : string
+  taken_at : datetime
+  geo : string
+  status : enum
+}
+
+class QualityResult {
+  + id : UUID
+  --
+  shot_uuid : UUID
+  work_type : string
+  matches_plan : bool
+  count : int
+  defects : string[]
+  photo_quality : string
+  confidence : float
+  score : int
+}
+
+class FactEntry {
+  + id : UUID
+  --
+  work_id : UUID
+  brigade_id : UUID
+  accepted_volume : float
+  accepted_percent : int
+  date : date
+  source_shot : UUID
+}
+
+class Leaderboard {
+  + object_id : UUID
+  + brigade_id : UUID
+  --
+  points : int
+  accepted : int
+  quality : float
+  rework : int
+  streak : int
+}
+
+Object "1" --> "*" Brigade : содержит
+Object "1" --> "*" Work : график
+Brigade "1" --> "*" Work : выполняет
+Work "1" --> "*" Task : наряды
+Task "1" --> "*" Shot : фото
+Shot "1" --> "1" QualityResult : оценивает нейросеть
+Shot "1" --> "0..1" FactEntry : при принятии
+Brigade "1" --> "*" FactEntry : факт
+Object "1" --> "*" Leaderboard : рейтинг
+@enduml

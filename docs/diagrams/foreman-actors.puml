@@ -1,0 +1,25 @@
+@startuml Акторы_и_системы
+!theme plain
+title Приложение прораба — акторы и системы
+left to right direction
+
+actor "Прораб" as Foreman
+actor "Руководитель\n(ПТО / технадзор)" as Manager
+
+rectangle "Основное приложение\n(мониторинг стройки)" as Main
+rectangle "Мобильное приложение\nпрораба" as App
+rectangle "Бэкенд" as Backend
+entity "CV-сервис\n(нейросеть)" as CV
+
+Foreman --> App : снимает фото,\nвидит факт и рейтинг
+Manager --> Main : оценивает фото,\nставит вердикт
+
+App --> Backend : фото + метаданные\n(очередь при офлайне)
+Backend --> CV : изображение +\nожидаемая работа
+CV --> Backend : параметры качества\n(тип, дефекты,\nуверенность, балл)
+Backend --> Main : фото + качество\nна оценку
+Main --> Backend : вердикт:\nпринято / частично /\nна доработку
+Backend --> App : статусы, факт,\nрейтинг бригад
+Main --> Backend : график работ,\nсостав бригад
+Backend --> App : график и наряды\nбригады
+@enduml
