@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Приложение прораба — бизнес-логика</title>
+<style>
+:root{--ground:#E4E6E1;--paper:#FBFBF9;--paper2:#F1F2EE;--ink:#1B1D1C;--ink2:#43473F;--muted:#6E726B;--rule:#C7CAC2;--rule2:#DCDED7;--blue:#1B5C8A;--blue-soft:#E2ECF3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:32px 22px 90px;background:var(--paper);min-height:100vh}
+h1{font-size:30px;letter-spacing:-.02em;margin:0 0 8px}
+h2{margin:38px 0 12px;font-size:22px;border-top:1px solid var(--rule);padding-top:16px}
+h2:first-of-type{border-top:0}
+h3{margin:24px 0 8px;font-size:17px}
+p{margin:0 0 12px;color:var(--ink2)}
+b,strong{color:var(--ink)}
+a{color:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0 18px;background:#fff;border:1px solid var(--rule2)}
+th{font:600 11px ui-monospace,Consolas,monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:9px 12px;background:var(--paper2);border-bottom:1px solid var(--rule)}
+td{padding:9px 12px;border-bottom:1px solid var(--rule2);vertical-align:top;color:var(--ink2)}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink)}
+code{font:13px ui-monospace,Consolas,monospace;background:var(--paper2);border:1px solid var(--rule2);border-radius:5px;padding:1px 5px}
+pre{background:#15211c;color:#e6efe9;padding:14px 16px;border-radius:10px;overflow:auto}
+pre code{background:none;border:0;color:inherit;padding:0}
+blockquote{margin:14px 0;padding:10px 14px;border-left:3px solid var(--blue);background:var(--blue-soft);color:var(--ink2)}
+ul,ol{margin:0 0 14px;padding-left:22px;color:var(--ink2)}
+li{margin:4px 0}
+figure{margin:16px 0 22px;text-align:center}
+figure img{max-width:100%;border:1px solid var(--rule2);border-radius:10px;background:#fff;padding:8px}
+figcaption{font:12px ui-monospace,Consolas,monospace;color:var(--muted);margin-top:8px}
+hr{border:0;border-top:1px solid var(--rule);margin:28px 0}
+</style></head>
+<body><div class="wrap">
+<h1 id="-">Приложение прораба — бизнес-логика (системный анализ)</h1>
+<blockquote>
+<p><strong>Для кого:</strong> команда (бэк, фронт, ML, презентация).
+<strong>Связанные документы:</strong> <code>TZ.md</code>, <code>docs/REQUIREMENTS.md</code>, основное приложение мониторинга.</p>
+</blockquote>
+<hr />
+<h2 id="1">1. Назначение</h2>
+<p>Мобильное приложение для прораба, которое:
+- получает <strong>график работ</strong> из основного приложения (мониторинга стройки);
+- позволяет <strong>быстро сфотографировать</strong> результат работы (например, установку дверей);
+- работает <strong>без интернета</strong>: фото хранится на телефоне и досылается позже;
+- передаёт фото в <strong>нейросеть</strong>, а её параметры качества — в основное приложение;
+- после <strong>оценки руководителя</strong> формирует <strong>график фактически выполненных работ</strong>;
+- показывает <strong>соревнование бригад</strong> на объекте.</p>
+<h2 id="2">2. Три принципа</h2>
+<ol>
+<li><strong>Офлайн-ферст.</strong> Фото сохраняется локально <strong>до</strong> любой отправки. Интернет не обязателен в момент съёмки.</li>
+<li><strong>Минимум действий.</strong> Один тап — одно фото. Никаких обязательных форм и текстовых полей.</li>
+<li><strong>Прозрачное соревнование.</strong> Бригады видят принятые работы друг друга на объекте.</li>
+</ol>
+<hr />
+<h2 id="3">3. Акторы и системы</h2>
+<figure><img src="diagrams/foreman-actors.png" alt="Акторы и системы"><figcaption>Акторы и системы</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th>Актор / система</th>
+<th>Роль</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Прораб</strong></td>
+<td>снимает фото, ведёт свой факт, видит соревнование</td>
+</tr>
+<tr>
+<td><strong>Руководитель</strong></td>
+<td>оценивает фото, ставит вердикт</td>
+</tr>
+<tr>
+<td><strong>Мобильное приложение</strong></td>
+<td>съёмка, офлайн-очередь, факт, рейтинг</td>
+</tr>
+<tr>
+<td><strong>Бэкенд</strong></td>
+<td>приём фото, связь с нейросетью и основным приложением</td>
+</tr>
+<tr>
+<td><strong>CV-сервис (нейросеть)</strong></td>
+<td>распознаёт работу, отдаёт параметры качества</td>
+</tr>
+<tr>
+<td><strong>Основное приложение</strong></td>
+<td>источник графика, приёмка, факт, рейтинг</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4">4. Модель данных</h2>
+<figure><img src="diagrams/foreman-data-model.png" alt="Модель данных"><figcaption>Модель данных</figcaption></figure>
+
+<p><strong>Ключ идемпотентности:</strong> <code>Shot.local_uuid</code> генерируется на телефоне. Одно фото не отправится дважды и не потеряется.</p>
+<hr />
+<h2 id="5">5. Основной сценарий (сквозной)</h2>
+<ol>
+<li>Прораб открывает приложение → <strong>«Сегодня»</strong>: работы своей бригады из графика.</li>
+<li>Тапает работу → кнопка <strong>«Фото»</strong>. Снял (можно несколько).</li>
+<li>Фото сразу в <strong>локальной очереди</strong> (<code>queued</code>), к нему привязаны задача, время, гео.</li>
+<li>Нет интернета — фото лежит. Появился — <strong>фоновая отправка</strong>.</li>
+<li>Бэкенд прогоняет фото через <strong>нейросеть</strong> → сохраняет <strong>параметры качества</strong>.</li>
+<li>Руководитель в основном приложении видит фото + качество → <strong>вердикт</strong>.</li>
+<li>Формируется <strong>факт</strong>: работа появляется в графике выполненных у прораба и в основном приложении.</li>
+<li>Обновляется <strong>соревнование</strong>.</li>
+</ol>
+<hr />
+<h2 id="6-state-machine">6. Жизненный цикл фото (state machine)</h2>
+<figure><img src="diagrams/foreman-photo-lifecycle.png" alt="Жизненный цикл фото"><figcaption>Жизненный цикл фото</figcaption></figure>
+
+<table>
+<thead>
+<tr>
+<th>Состояние</th>
+<th>Значение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>draft</code></td>
+<td>снято, не подтверждено к отправке</td>
+</tr>
+<tr>
+<td><code>queued</code></td>
+<td>в локальной очереди (нет сети)</td>
+</tr>
+<tr>
+<td><code>uploading</code> / <code>failed</code></td>
+<td>отправляется / ошибка (повтор)</td>
+</tr>
+<tr>
+<td><code>uploaded</code> / <code>processing</code> / <code>processed</code></td>
+<td>на сервере / нейросеть / есть качество</td>
+</tr>
+<tr>
+<td><code>under_review</code></td>
+<td>у руководителя</td>
+</tr>
+<tr>
+<td><code>accepted</code> / <code>partial</code> / <code>rework</code> / <code>rejected</code></td>
+<td>вердикт</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Правило:</strong> фото <strong>никогда не удаляется</strong> при неудаче — только повтор.</p>
+<hr />
+<h2 id="7-">7. Офлайн-режим (ключевая часть)</h2>
+<ul>
+<li><strong>Хранилище:</strong> локальная БД (метаданные) + файлы фото на телефоне.</li>
+<li><strong>Очередь:</strong> FIFO по <code>local_uuid</code>, повтор с экспоненциальной задержкой.</li>
+<li><strong>Сжатие:</strong> на телефоне, «среднее» качество (прорабу некогда — нейросеть терпит).</li>
+<li><strong>Триггеры отправки:</strong> появилась связь / Wi-Fi / открыл приложение / вручную.</li>
+<li><strong>Батч:</strong> несколько фото за раз (экономия трафика и батареи).</li>
+<li><strong>Идемпотентность:</strong> повтор <code>local_uuid</code> не создаёт дубль.</li>
+<li><strong>Лимит хранилища:</strong> предупреждение; неотправленное не удаляем молча.</li>
+<li><strong>Индикатор:</strong> «не отправлено: N фото» — без технических деталей.</li>
+</ul>
+<hr />
+<h2 id="8">8. Параметры качества от нейросети</h2>
+<p>Нейросеть получает фото + ожидаемую работу и возвращает:</p>
+<table>
+<thead>
+<tr>
+<th>Параметр</th>
+<th>Пример</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>work_type</code></td>
+<td>«установка дверей»</td>
+</tr>
+<tr>
+<td><code>matches_plan</code></td>
+<td>да / нет / не уверен</td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td>3 двери</td>
+</tr>
+<tr>
+<td><code>defects[]</code></td>
+<td>«зазор», «перекос», «не закончено»</td>
+</tr>
+<tr>
+<td><code>photo_quality</code></td>
+<td>«размыто», «темно», «издалека»</td>
+</tr>
+<tr>
+<td><code>confidence</code></td>
+<td>0.0–1.0</td>
+</tr>
+<tr>
+<td><code>score</code></td>
+<td>0–100</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Правило:</strong> нейросеть даёт <strong>признаки</strong>, а не вердикт. Решение — за руководителем (принцип основного приложения: «система фиксирует, не утверждает»).</p>
+<hr />
+<h2 id="9">9. Оценка руководителя → формирование факта</h2>
+<ol>
+<li>Руководитель видит фото, распознанную работу, дефекты, качество, привязку к наряду.</li>
+<li>Вердикт: <strong>принято / частично / на доработку / отклонено</strong> (+ комментарий).</li>
+<li>«Принято/частично» → создаётся <code>FactEntry</code>, обновляется факт в основном приложении (Ось 2 «отчётность»), начисляются баллы.</li>
+<li>«На доработку» → задача возвращается прорабу с причиной и штрафом в рейтинге.</li>
+</ol>
+<p><strong>Связка с основным приложением:</strong> фото + оценка = доказательство для правила <strong>R6 «ложное завершение»</strong> (заявлено 100 %, подтверждения нет).</p>
+<hr />
+<h2 id="10">10. График фактически выполненных работ (у прораба)</h2>
+<p>Простая лента по дням, статусы: <strong>не начато · в работе · на проверке · принято</strong> (+ «на доработку»).</p>
+<pre><code>Сегодня, 21 сентября
+✅ Установка дверей, зона 2      принято · 12:40
+⏳ Бетонирование, секция C        на проверке
+🔁 Армирование, зона A            на доработку (переснять)
+•  Котлован, зона B               не начато
+</code></pre>
+<p>Проценты и суммы считает система — прораб их не заполняет.</p>
+<hr />
+<h2 id="11">11. Соревнование бригад</h2>
+<pre><code>Бригада          Принято   Качество   Баллы
+Бригада №2         14       92%       178
+Бригада №1 (мы)    12       88%       150
+Бригада №3          9       75%       104
+</code></pre>
+<p><strong>Метрики:</strong> <code>accepted</code>, <code>quality</code>, <code>timeliness</code>, <code>rework</code> (штраф), <code>streak</code> (дней без брака).</p>
+<p><strong>Формула (пример):</strong></p>
+<pre><code>points = accepted × 10 + quality_bonus − rework × 5
+</code></pre>
+<p><strong>Этика:</strong> видно <strong>работы и зоны</strong> других бригад, но <strong>без фото и личных данных</strong> — соревнование, а не слежка.</p>
+<hr />
+<h2 id="12">12. Экраны (минимум — три)</h2>
+<ol>
+<li><strong>«Сегодня»</strong> — работы бригады на сегодня, одна кнопка <strong>«Фото»</strong> у каждой; счётчик «в очереди: N».</li>
+<li><strong>«Мои отчёты»</strong> — лента по дням со статусами; у «на доработку» — «переснять».</li>
+<li><strong>«Соревнование»</strong> — таблица бригад объекта.</li>
+</ol>
+<p><strong>Правило дизайна:</strong> на главном экране одно действие — фото. Остальное — просмотр.</p>
+<hr />
+<h2 id="13-api-">13. API-контракты (обмен)</h2>
+<p><strong>Скачивание (сервер → телефон):</strong></p>
+<pre><code>GET /api/foreman/object/{id}/schedule?brigade_id=...&amp;date=...
+GET /api/foreman/leaderboard?object_id=...
+</code></pre>
+<p><strong>Загрузка (телефон → сервер):</strong></p>
+<pre><code>POST /api/foreman/shots        # multipart: фото + метаданные
+  { local_uuid, task_id, taken_at, geo }
+→ 201 { server_id, status: &quot;uploaded&quot; }
+</code></pre>
+<p><strong>Статусы (телефон ← сервер):</strong></p>
+<pre><code>GET /api/foreman/shots/status?uuids=...
+→ [{ local_uuid, status, quality_result?, verdict? }]
+</code></pre>
+<p>Обязательно: идемпотентность по <code>local_uuid</code>; сервер не создаёт дубли.</p>
+<hr />
+<h2 id="14">14. Права и безопасность</h2>
+<ul>
+<li>Прораб видит <strong>только свой объект и свою бригаду</strong> (+ агрегированный рейтинг).</li>
+<li>Фото защищены, доступ — по объекту/бригаде.</li>
+<li>Простая идентификация прораба (телефон/код), без сложных кабинетов.</li>
+</ul>
+<hr />
+<h2 id="15">15. Краевые случаи</h2>
+<table>
+<thead>
+<tr>
+<th>Случай</th>
+<th>Решение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Фото без выбранной работы</td>
+<td>привязать к ближайшей задаче дня или «прочее» — не терять</td>
+</tr>
+<tr>
+<td>Нейросеть не распознала</td>
+<td>«не уверен» → руководитель решает вручную</td>
+</tr>
+<tr>
+<td>Вердикт «на доработку»</td>
+<td>задача возвращается с причиной и штрафом</td>
+</tr>
+<tr>
+<td>Дубль фото</td>
+<td>отсекается по <code>local_uuid</code></td>
+</tr>
+<tr>
+<td>Долго нет сети</td>
+<td>фото копятся; предупреждение о заполнении памяти</td>
+</tr>
+<tr>
+<td>Появилась связь</td>
+<td>батч-отправка</td>
+</tr>
+<tr>
+<td>Закрыто в графике, фото нет</td>
+<td>сценарий <strong>«ложное завершение»</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="16">16. Критерии приёмки</h2>
+<ol>
+<li><strong>Фото не теряется</strong> — снято офлайн, доедет после включения интернета.</li>
+<li><strong>≤ 2 тапов</strong> до отправки фото.</li>
+<li>Нейросеть отдаёт параметры качества; руководитель их видит.</li>
+<li>После вердикта факт появляется <strong>и</strong> у прораба, <strong>и</strong> в основном приложении.</li>
+<li>Рейтинг бригад обновляется; прораб видит работы других бригад.</li>
+<li>Прораб не заполняет ни одного текстового поля.</li>
+<li>Работает на слабой связи (батчи, индикатор очереди).</li>
+</ol>
+<hr />
+<h2 id="17">17. Открытые вопросы</h2>
+<ol>
+<li>Формула баллов соревнования — утвердить.</li>
+<li>Что видно о других бригадах: только работы/зоны или с фото? (предлагаю без фото — этика).</li>
+<li>Нейросеть на <strong>сервере</strong> (рекомендуется) или на телефоне.</li>
+<li>Сжатие фото: баланс качество ↔ трафик.</li>
+<li>Защита от накрутки: правило «1 наряд = N фото», дедуп.</li>
+</ol>
+<hr />
+<h2 id="_1">Схемы</h2>
+<p>Код PlantUML для рендера: <code>docs/diagrams/</code>
+- <code>foreman-actors.puml</code> — акторы и системы
+- <code>foreman-data-model.puml</code> — модель данных
+- <code>foreman-photo-lifecycle.puml</code> — жизненный цикл фото</p>
+<p>Отрендерить: вставить на https://www.plantuml.com/plantuml/uml/ или в расширение PlantUML (VS Code).</p>
+</div></body></html>
