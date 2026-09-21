@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Приложение прораба — макет 3 экранов</title>
+<style>
+:root{
+  --ground:#E4E6E1; --paper:#FBFBF9; --paper2:#F1F2EE; --paper3:#E9EAE5;
+  --ink:#1B1D1C; --ink2:#43473F; --muted:#6E726B; --faint:#8E938A;
+  --rule:#C7CAC2; --rule2:#DCDED7;
+  --blue:#1B5C8A; --blue-soft:#E2ECF3;
+  --ok:#2E7A4E; --ok-soft:#DFEDE4;
+  --warn:#A06712; --warn-soft:#F4E9D4;
+  --bad:#AC3529; --bad-soft:#F5E1DE;
+  --done:#7C8079; --done-soft:#E5E7E1;
+  --ui:"Golos Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 var(--ui);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 20px 70px}
+h1{font-size:28px;letter-spacing:-.02em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 26px;max-width:80ch}
+.row{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+
+.phone{width:330px;background:#111;border-radius:34px;padding:10px;box-shadow:0 18px 40px rgba(0,0,0,.22)}
+.screen{background:var(--paper);border-radius:26px;overflow:hidden;height:660px;display:flex;flex-direction:column;position:relative}
+.caption{margin-top:12px;font-size:13px;color:var(--ink2);max-width:330px}
+.caption b{color:var(--ink)}
+
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font:11px var(--mono);color:var(--muted);background:var(--paper2)}
+.apphead{padding:12px 16px 14px;border-bottom:1px solid var(--rule2)}
+.apphead .obj{font:700 16px var(--ui)}
+.apphead .brig{font-size:12px;color:var(--muted);margin-top:2px}
+.apphead .date{font:11px var(--mono);color:var(--muted);margin-top:6px}
+
+.netbar{display:flex;align-items:center;gap:8px;margin:10px 12px 0;padding:8px 11px;border-radius:10px;font-size:12px}
+.netbar.offline{background:var(--warn-soft);border:1px solid var(--warn);color:var(--warn)}
+.netbar.online{background:var(--ok-soft);border:1px solid var(--ok);color:var(--ok)}
+.dot{width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block}
+
+.list{padding:10px 12px;overflow-y:auto;flex:1;display:grid;gap:10px;align-content:start}
+.task{background:var(--paper2);border:1px solid var(--rule2);border-radius:14px;padding:12px}
+.task .tname{font-weight:600}
+.task .tzone{font-size:12px;color:var(--muted);margin-top:2px}
+.task .tfoot{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.count{font:11px var(--mono);color:var(--muted)}
+.shutter{width:56px;height:56px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.shutter i{width:38px;height:38px;border-radius:50%;background:var(--ink);display:block}
+.shutter:active i{background:var(--blue)}
+
+.chip{display:inline-block;font:700 10px var(--mono);letter-spacing:.04em;padding:4px 8px;border-radius:6px;border:1px solid}
+.chip.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.chip.warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+.chip.bad{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
+.chip.none{color:var(--done);border-color:var(--rule);background:var(--done-soft)}
+
+.rep{background:var(--paper2);border:1px solid var(--rule2);border-radius:14px;padding:12px}
+.rep .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.rep .tname{font-weight:600;font-size:14px}
+.rep .tmeta{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px}
+.rep .redo{margin-top:10px;font:600 12px var(--ui);border:1px solid var(--bad);color:var(--bad);background:var(--bad-soft);padding:8px 12px;border-radius:9px;cursor:pointer}
+.daylabel{font:700 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 2px 0}
+
+.board{padding:12px;display:grid;gap:8px}
+.brow{display:grid;grid-template-columns:32px 1fr auto;gap:10px;align-items:center;background:var(--paper2);border:1px solid var(--rule2);border-radius:12px;padding:10px 12px}
+.brow.me{background:var(--blue-soft);border-color:var(--blue)}
+.brow .place{font:700 16px var(--mono);color:var(--muted);text-align:center}
+.brow.me .place{color:var(--blue)}
+.brow .bname{font-weight:600;font-size:14px}
+.brow .bmeta{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.brow .pts{font:700 18px var(--mono)}
+.brow.me .pts{color:var(--blue)}
+.others{padding:0 12px 12px}
+.others h4{font:700 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:8px 0}
+.otherrow{font-size:12.5px;color:var(--ink2);padding:6px 0;border-bottom:1px solid var(--rule2)}
+.otherrow:last-child{border-bottom:0}
+
+.tabbar{margin-top:auto;display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--rule);background:var(--paper)}
+.tabbar div{padding:12px 4px;text-align:center;font:600 11px var(--ui);color:var(--muted)}
+.tabbar div.on{color:var(--ink);box-shadow:inset 0 3px 0 var(--ink)}
+.fab{position:absolute;right:16px;bottom:78px;width:60px;height:60px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(0,0,0,.3)}
+.fab i{width:26px;height:26px;border-radius:50%;border:3px solid var(--paper)}
+.note{font:11px var(--mono);color:var(--muted);padding:0 16px 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Приложение прораба — макет</h1>
+  <p class="sub">Максимально просто: три экрана, одно основное действие — фото. Работает без связи: фото копятся в очереди и досылаются сами.</p>
+
+  <div class="row">
+
+    <!-- ЭКРАН 1 -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>очередь: 2 фото</span></div>
+        <div class="apphead">
+          <div class="obj">ЖК «Северный», корпус 2</div>
+          <div class="brig">Бригада №1 · прораб И. Петров</div>
+          <div class="date">СЕГОДНЯ · 21 СЕНТЯБРЯ</div>
+        </div>
+        <div class="netbar offline"><i class="dot"></i> Нет сети — фото сохранены, отправятся позже</div>
+        <div class="list">
+          <div class="task">
+            <div class="tname">Установка дверей</div>
+            <div class="tzone">Зона 2 · 4 двери</div>
+            <div class="tfoot"><span class="count">снято: 3</span><div class="shutter" title="Фото"><i></i></div></div>
+          </div>
+          <div class="task">
+            <div class="tname">Бетонирование</div>
+            <div class="tzone">Секция C</div>
+            <div class="tfoot"><span class="count">снято: 0</span><div class="shutter" title="Фото"><i></i></div></div>
+          </div>
+          <div class="task">
+            <div class="tname">Армирование</div>
+            <div class="tzone">Зона A</div>
+            <div class="tfoot"><span class="count">снято: 0</span><div class="shutter" title="Фото"><i></i></div></div>
+          </div>
+        </div>
+        <div class="tabbar"><div class="on">Сегодня</div><div>Отчёты</div><div>Рейтинг</div></div>
+      </div></div>
+      <p class="caption"><b>Экран 1 · «Сегодня».</b> Список работ бригады и одна кнопка «Фото» у каждой. Видно, сколько уже снято. Сверху — состояние связи и размер очереди.</p>
+    </div>
+
+    <!-- ЭКРАН 2 -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>онлайн</span></div>
+        <div class="apphead">
+          <div class="obj">Мои отчёты</div>
+          <div class="brig">Бригада №1 · ЖК «Северный»</div>
+          <div class="date">ФАКТ ВЫПОЛНЕННЫХ РАБОТ</div>
+        </div>
+        <div class="list">
+          <div class="daylabel">Сегодня</div>
+          <div class="rep">
+            <div class="top"><div><div class="tname">Установка дверей</div><div class="tmeta">зона 2 · принято 12:40</div></div><span class="chip ok">ПРИНЯТО</span></div>
+          </div>
+          <div class="rep">
+            <div class="top"><div><div class="tname">Бетонирование</div><div class="tmeta">секция C · на проверке</div></div><span class="chip warn">НА ПРОВЕРКЕ</span></div>
+          </div>
+          <div class="rep">
+            <div class="top"><div><div class="tname">Армирование</div><div class="tmeta">зона A · нужен пересъём</div></div><span class="chip bad">НА ДОРАБОТКУ</span></div>
+            <button class="redo">Переснять фото</button>
+          </div>
+          <div class="daylabel">Вчера</div>
+          <div class="rep">
+            <div class="top"><div><div class="tname">Котлован</div><div class="tmeta">зона B · сдано в срок</div></div><span class="chip ok">ПРИНЯТО</span></div>
+          </div>
+        </div>
+        <div class="tabbar"><div>Сегодня</div><div class="on">Отчёты</div><div>Рейтинг</div></div>
+      </div></div>
+      <p class="caption"><b>Экран 2 · «Мои отчёты».</b> Лента по дням со статусами: принято · на проверке · на доработку · не начато. Только у «на доработку» появляется кнопка «Переснять».</p>
+    </div>
+
+    <!-- ЭКРАН 3 -->
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>онлайн</span></div>
+        <div class="apphead">
+          <div class="obj">Соревнование бригад</div>
+          <div class="brig">Объект: ЖК «Северный», корпус 2</div>
+          <div class="date">ПРИНЯТЫЕ РАБОТЫ · БАЛЛЫ</div>
+        </div>
+        <div class="board">
+          <div class="brow"><div class="place">1</div><div><div class="bname">Бригада №2</div><div class="bmeta">принято 14 · качество 92%</div></div><div class="pts">178</div></div>
+          <div class="brow me"><div class="place">2</div><div><div class="bname">Бригада №1 (мы)</div><div class="bmeta">принято 12 · качество 88%</div></div><div class="pts">150</div></div>
+          <div class="brow"><div class="place">3</div><div><div class="bname">Бригада №3</div><div class="bmeta">принято 9 · качество 75%</div></div><div class="pts">104</div></div>
+        </div>
+        <div class="others">
+          <h4>Что сделали другие бригады</h4>
+          <div class="otherrow">Бригада №2 · Установка дверей · зона 4 — принято</div>
+          <div class="otherrow">Бригада №2 · Стяжка пола · секция B — принято</div>
+          <div class="otherrow">Бригада №3 · Армирование · зона C — на проверке</div>
+        </div>
+        <div class="tabbar"><div>Сегодня</div><div>Отчёты</div><div class="on">Рейтинг</div></div>
+      </div></div>
+      <p class="caption"><b>Экран 3 · «Соревнование».</b> Таблица бригад объекта и список работ других бригад (без фото и личных данных). Мотивирует не отставать.</p>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
