@@ -137,7 +137,7 @@ function App() {
   }
 
   return (
-    <div className="app-bg min-h-screen overflow-x-hidden">
+    <div className="app-bg min-h-screen">
       {/* Ambient background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-danger-500/10 blur-3xl" />
@@ -182,12 +182,12 @@ function App() {
         </div>
 
         {/* Navigation tabs — always visible */}
-        <div className="sticky top-2 z-40 mb-6 flex flex-wrap items-center gap-1 rounded-2xl border border-surface-border bg-surface-secondary/80 p-1.5 backdrop-blur-sm">
+        <div className="sticky top-0 z-40 mb-6 flex items-center gap-1 overflow-x-auto rounded-2xl border border-surface-border bg-surface-secondary/95 p-1.5 backdrop-blur-sm scrollbar-thin">
           {VIEWS.map(({ mode: m, label, icon: Icon }) => (
             <button
               key={m}
               onClick={() => navigate(selectedProject?.id || null, m)}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                 mode === m
                   ? 'bg-accent-500/20 text-accent-400 shadow-sm'
                   : 'text-content-tertiary hover:bg-surface-tertiary hover:text-content-secondary'

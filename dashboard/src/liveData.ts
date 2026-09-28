@@ -7,11 +7,12 @@ import {
   computeVerdict,
   resolveWorkId,
   statusToLabel,
+  type PhotoStatus,
 } from './expected_equipment';
 
 const API_BASE = ''; // пустой → относительные пути (работает через прокси Vite)
 
-// Сервер — источник истины. Если сервер ещё не посчитал (unsure) — считаем сами как запасной путь.
+// Сервер — источник истины. Вердикт работы считаем по БОЛЬШИНСТВУ фото этой работы.
 export async function loadLiveWorks(
   demoWorks: WorkItem[],
   baseUrl?: string
@@ -21,21 +22,50 @@ export async function loadLiveWorks(
     const rules = await loadExpectedEquipment();
 
     return demoWorks.map(work => {
-      const photo = photos.find(p => resolveWorkId(p.brigade || '', rules) === work.id);
-      if (!photo) return work; // нет фото для этой работы → оставляем демо
-
-      let status = photo.status;
-      let found = photo.found || [];
-      if (status === 'unsure' && rules) {
-        const v = computeVerdict(photo.brigade || '', photo.detections, rules);
-        status = v.status;
-        found = v.found;
+      const workPhotos = photos.filter(p => resolveWorkId(p.brigade || '', rules) === work.id);
+      if (workPhotos.length === 0) {
+        if (photos.length > 0) {
+          // сервер жив, но фото по этой работе нет → честно «не проверяется»
+          return {
+            ...work,
+            verdict: 'not_checked',
+            verdictLabel: 'Не проверяется',
+            status: 'out_of_scope',
+            confirmedPct: 0,
+            detail: 'Нет фото с площадки — не проверяется',
+          };
+        }
+        return work; // сервер не отвечает → демо
       }
+
+      // Подсчёт статусов по всем фото работы
+      const counts: Record<'confirmed' | 'not_confirmed' | 'review', number> = {
+        confirmed: 0, not_confirmed: 0, review: 0,
+      };
+      workPhotos.forEach(p => {
+        let st = p.status;
+        if (st === 'unsure' && rules) {
+          st = computeVerdict(p.brigade || '', p.detections, rules).status;
+        }
+        if (st === 'confirmed' || st === 'not_confirmed' || st === 'review') {
+          counts[st] += 1;
+        }
+      });
+
+      // Большинство; при равенстве приоритет: confirmed > not_confirmed > review
+      let status: 'confirmed' | 'not_confirmed' | 'review' = 'review';
+      let best = -1;
+      for (const s of ['confirmed', 'not_confirmed', 'review'] as const) {
+        if (counts[s] > best) { status = s; best = counts[s]; }
+      }
+
+      const photo = workPhotos.find(p => p.status === 'confirmed') || workPhotos[0];
+      const found = photo.found || [];
+      const total = workPhotos.length;
 
       const newVerdict = status === 'confirmed' ? 'work_seen'
         : status === 'not_confirmed' ? 'nothing_found'
-        : status === 'review' ? 'resources_only'
-        : 'not_checked';
+        : 'resources_only';
 
       return {
         ...work,
@@ -46,12 +76,10 @@ export async function loadLiveWorks(
           : status === 'review' ? 'ask_reason'
           : 'requires_reaction',
         detail: status === 'confirmed'
-          ? `Фото получено, найден ${found[0] || 'объект'}, выполнено`
+          ? `Подтверждено ${counts.confirmed} из ${total} фото · найден ${found[0] || 'объект'}`
           : status === 'not_confirmed'
-          ? `Техника не совпадает с планом (ожидалось: ${work.expectedEquipment?.join(', ') || 'нет данных'})`
-          : status === 'review'
-          ? 'Требуется переснять фото'
-          : 'Фото получено, но данных недостаточно для вердикта',
+          ? `Техника не совпадает с планом (${counts.not_confirmed} из ${total} фото)`
+          : `Требуется переснять (${counts.review} из ${total} фото)`,
         photoUrl: photo.file,
         photoStatus: status,
       };
