@@ -1,0 +1,52 @@
+@startuml bp_import
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontColor #1C1D22
+skinparam defaultFontSize 20
+skinparam ActivityFontSize 20
+skinparam ActivityDiamondFontSize 18
+skinparam ArrowFontSize 18
+skinparam NoteFontSize 18
+skinparam ArrowColor #520978
+skinparam ArrowFontColor #310F53
+skinparam ActivityBackgroundColor #FFD6E4
+skinparam ActivityBorderColor #FC3777
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #8A83D1
+skinparam ActivityDiamondBorderColor #310F53
+skinparam ActivityDiamondFontColor #FFFFFF
+skinparam ActivityStartColor #FF0053
+skinparam ActivityEndColor #310F53
+skinparam ActivityBarColor #520978
+skinparam SwimlaneBorderColor #8A83D1
+skinparam SwimlaneBorderThickness 2
+skinparam SwimlaneTitleBackgroundColor #310F53
+skinparam SwimlaneTitleFontColor #FFFFFF
+skinparam SwimlaneTitleFontSize 18
+skinparam NoteBackgroundColor #FFD6E4
+skinparam NoteBorderColor #FC3777
+skinparam NoteFontColor #310F53
+skinparam TitleFontColor #310F53
+skinparam TitleFontSize 30
+title «Объектив» — Бизнес-процесс: импорт календарного графика
+
+|Подрядчик|
+start
+:Передаёт график работ\n(Excel / CSV / КС-2);
+|Бэкенд «Объектив»|
+:Распознаёт колонки по синонимам;
+:Приводит к канонической форме работы;
+note right: работы, зона, подрядчик,\nплан-даты, требуемая техника, пороги
+if (Найдены ошибки или пропуски?) then (да)
+  :Помечает сомнительные строки;
+  |Руководитель|
+  :Проверяет и правит вручную;
+  |Бэкенд «Объектив»|
+endif
+:Сохраняет план с версией и источником;
+note right: Защита от сдвига дат задним числом
+|Руководитель|
+:Объект готов к мониторингу;
+stop
+@enduml

@@ -1,0 +1,66 @@
+@startuml bp_zamechanie
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontColor #1C1D22
+skinparam defaultFontSize 20
+skinparam ActivityFontSize 20
+skinparam ActivityDiamondFontSize 18
+skinparam ArrowFontSize 18
+skinparam NoteFontSize 18
+skinparam ArrowColor #520978
+skinparam ArrowFontColor #310F53
+skinparam ActivityBackgroundColor #FFD6E4
+skinparam ActivityBorderColor #FC3777
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #8A83D1
+skinparam ActivityDiamondBorderColor #310F53
+skinparam ActivityDiamondFontColor #FFFFFF
+skinparam ActivityStartColor #FF0053
+skinparam ActivityEndColor #310F53
+skinparam ActivityBarColor #520978
+skinparam SwimlaneBorderColor #8A83D1
+skinparam SwimlaneBorderThickness 2
+skinparam SwimlaneTitleBackgroundColor #310F53
+skinparam SwimlaneTitleFontColor #FFFFFF
+skinparam SwimlaneTitleFontSize 18
+skinparam NoteBackgroundColor #FFD6E4
+skinparam NoteBorderColor #FC3777
+skinparam NoteFontColor #310F53
+skinparam TitleFontColor #310F53
+skinparam TitleFontSize 30
+title «Объектив» — Бизнес-процесс: работа с замечанием
+
+|Система|
+start
+:Сформировано замечание (новое);
+|Руководитель|
+:Просмотрено;
+if (Нужно объяснение от подрядчика?) then (да)
+  :Запрос подрядчику с доказательством кадром;
+  |Подрядчик|
+  :Предоставляет фотоотчёт или объяснение;
+  |Руководитель|
+  if (Объяснение принято?) then (да)
+    :Закрыто: «объяснено подрядчиком»;
+    note right: Снято из расхождений
+  else (нет)
+    :Закрыто: «подтвердилось»;
+    note right: Удержание по КС-2
+  endif
+else (нет)
+  if (Это ошибка детектора?) then (да)
+    :Закрыто: «ложное срабатывание»;
+    note right: Кадры уходят в датасет
+  else (нет)
+    :Ожидание ответа подрядчика;
+    if (Ответ в течение 2 суток?) then (да)
+      :Обработка ответа;
+    else (нет)
+      :Эскалация;
+      note right: Остаётся красным
+    endif
+  endif
+endif
+stop
+@enduml

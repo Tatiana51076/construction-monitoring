@@ -1,0 +1,63 @@
+@startuml seq_mobile_photo
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam sequenceParticipantFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceArrowFontSize 18
+skinparam sequenceGroupFontSize 18
+skinparam sequenceDividerFontSize 18
+skinparam NoteFontSize 18
+' PlantUML sequence — путь фото прораба (корпоративные цвета)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontColor #1C1D22
+skinparam sequenceArrowColor #520978
+skinparam sequenceArrowFontColor #310F53
+skinparam sequenceParticipantBackgroundColor #FFD6E4
+skinparam sequenceParticipantBorderColor #FC3777
+skinparam sequenceParticipantFontColor #310F53
+skinparam sequenceLifeLineBorderColor #8A83D1
+skinparam sequenceLifeLineBackgroundColor #FFF0F5
+skinparam sequenceGroupBorderColor #8A83D1
+skinparam sequenceGroupHeaderFontColor #FFFFFF
+skinparam sequenceGroupBackgroundColor #520978
+skinparam sequenceDividerBackgroundColor #FFD6E4
+skinparam sequenceDividerFontColor #310F53
+skinparam actorBackgroundColor #520978
+skinparam actorBorderColor #310F53
+skinparam actorFontColor #FFFFFF
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam TitleFontColor #310F53
+autonumber
+title «Объектив» — Мобильное приложение прораба: путь фото
+
+actor "Прораб" as Foreman
+participant "Мобильное приложение" as App
+database "Локальное хранилище\n(фото + метаданные)" as Local
+participant "Бэкенд «Объектив»\n(FastAPI)" as Backend
+participant "CV-сервис\n(YOLO)" as CV
+participant "Веб: Руководитель" as Manager
+
+Foreman -> App : Выбирает работу и делает фото
+App -> Local : Сохраняет фото и метаданные (офлайн-первым)
+App --> Foreman : Статус «Сохранено», интернет не нужен
+
+note over App, Local : Без сети фото копится в очереди и досылается само
+
+App -> Backend : Отправляет фото с метаданными (при появлении связи)
+Backend -> CV : Передаёт изображение и ожидаемую работу
+CV --> Backend : Тип работы, дефекты, уверенность
+Backend -> Backend : Сверяет фото с графиком и нарядом бригады
+Backend -> Manager : Отдаёт фото и параметры качества на оценку
+
+Manager -> Backend : Вердикт: принято / частично / на доработку
+Backend -> Local : (через приложение) помечает фото «отправлено»
+Backend -> Backend : Обновляет фактический график и рейтинг бригад
+Backend --> App : Статус фото, факт, рейтинг
+
+App -> Foreman : Показывает факт своей бригады и соревнование
+
+@enduml

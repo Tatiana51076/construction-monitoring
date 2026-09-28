@@ -1,0 +1,49 @@
+@startuml c4_mobile_context
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam ArrowFontSize 16
+!include <C4/C4_Context>
+' ── Corporate palette ──
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam arrowColor #520978
+UpdateElementStyle("person", $bgColor="#520978", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_person", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("system", $bgColor="#FF0053", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_system", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container_db", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container_db", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("component", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_component", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+skinparam boundaryBackgroundColor #FFFFFF
+skinparam boundaryBorderColor #8A83D1
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam titleFontColor #310F53
+
+LAYOUT_LANDSCAPE()
+title C4 · Контекст — Мобильное приложение прораба
+
+Person(foreman, "Прораб", "Бригадир / ответственный на объекте", "Один тап — одно фото. Работает офлайн, видит соревнование бригад")
+Person(manager, "Руководитель", "ПТО / технадзор", "Оценивает фото, ставит вердикт")
+
+System(mobile, "Мобильное приложение прораба", "Офлайн-первый клиент", "Съёмка работ, офлайн-очередь фото, график и наряды бригады, рейтинг")
+System(backend, "Бэкенд «Объектив»", "FastAPI (Python)", "Приём фото, связь с нейросетью и основным приложением, выдача факта и рейтинга")
+System(cv, "CV-сервис", "YOLO (нейросеть)", "Проверяет качество и распознаёт работу на фото")
+System(main, "Основное приложение мониторинга", "Веб «Объектив»", "Источник графика работ, приёмка, факт, рейтинг")
+
+Rel(foreman, mobile, "Снимает фото, смотрит факт и рейтинг")
+Rel(mobile, backend, "Отправляет фото и метаданные", "HTTPS / очередь при офлайне")
+Rel(backend, cv, "Передаёт изображение и ожидаемую работу", "HTTP")
+Rel(cv, backend, "Параметры качества: тип, дефекты, уверенность", "JSON")
+Rel(backend, main, "Фото и качество на оценку")
+Rel(main, backend, "Вердикт: принято / частично / на доработку")
+Rel(backend, mobile, "Статусы, факт, рейтинг бригад", "JSON")
+Rel(main, backend, "График работ и состав бригад")
+Rel(manager, main, "Оценивает фото, ставит вердикт")
+
+@enduml

@@ -1,0 +1,76 @@
+@startuml seq_web_view
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam sequenceParticipantFontSize 20
+skinparam sequenceActorFontSize 20
+skinparam sequenceArrowFontSize 18
+skinparam sequenceGroupFontSize 18
+skinparam sequenceDividerFontSize 18
+skinparam NoteFontSize 18
+' PlantUML sequence — просмотр объекта руководителем (корпоративные цвета)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontColor #1C1D22
+skinparam sequenceArrowColor #520978
+skinparam sequenceArrowFontColor #310F53
+skinparam sequenceParticipantBackgroundColor #FFD6E4
+skinparam sequenceParticipantBorderColor #FC3777
+skinparam sequenceParticipantFontColor #310F53
+skinparam sequenceLifeLineBorderColor #8A83D1
+skinparam sequenceLifeLineBackgroundColor #FFF0F5
+skinparam sequenceGroupBorderColor #8A83D1
+skinparam sequenceGroupHeaderFontColor #FFFFFF
+skinparam sequenceGroupBackgroundColor #520978
+skinparam sequenceDividerBackgroundColor #FFD6E4
+skinparam sequenceDividerFontColor #310F53
+skinparam actorBackgroundColor #520978
+skinparam actorBorderColor #310F53
+skinparam actorFontColor #FFFFFF
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam TitleFontColor #310F53
+autonumber
+title «Объектив» — Веб-интерфейс руководителя: портфель и карточка объекта
+
+actor "Руководитель\n(РП, ПТО, технадзор)" as Manager
+participant "Веб-интерфейс\n(React + TypeScript)" as Web
+participant "Бэкенд «Объектив»\n(FastAPI)" as Backend
+database "БД (PostgreSQL)" as DB
+database "Хранилище фото" as Store
+participant "CV-сервис\n(YOLO)" as CV
+actor "Камеры на площадке" as Cameras
+
+== Портфель объектов ==
+Manager -> Web : Открывает портфель объектов
+Web -> Backend : GET /api/foreman/objects
+Backend -> DB : Читает статусы и замечания
+DB --> Backend : Работы, факт, наблюдения
+Backend --> Web : JSON, отсортированный по проблемности
+Web --> Manager : Список объектов: сверху самые проблемные
+
+== Съёмка и обработка кадров ==
+Cameras -> Backend : Кадры смены
+Backend -> Store : Сохраняет кадр
+Backend -> CV : Передаёт изображение
+CV --> Backend : Класс, уверенность, bbox
+Backend -> Backend : Дедупликация: один объект = один
+Backend -> DB : Пишет наблюдения и уровни дня
+
+== Карточка объекта ==
+Manager -> Web : Открывает объект, вкладка «План / Факт»
+Web -> Backend : Запрос плана и факта
+Backend -> DB : Читает план, отчёт и наблюдения
+DB --> Backend : Три оси: наблюдение, отчётность, сроки
+Backend --> Web : Работы, замечания, риск, прогноз срока
+Web --> Manager : План/факт, метка «ложное завершение», доказательство кадром
+
+alt Требуется объяснение вердикта
+    Manager -> Web : Открывает «Методологию»
+    Web -> Backend : Запрос правила и формулы расчёта
+    Backend --> Web : Правило, порог, покрытие днями
+    Web --> Manager : Объяснение: откуда вердикт и как посчитан
+end
+
+@enduml

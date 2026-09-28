@@ -1,0 +1,60 @@
+@startuml c4_web_container
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam ArrowFontSize 16
+!include <C4/C4_Container>
+' ── Corporate palette ──
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam arrowColor #520978
+UpdateElementStyle("person", $bgColor="#520978", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_person", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("system", $bgColor="#FF0053", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_system", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container_db", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container_db", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("component", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_component", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+skinparam boundaryBackgroundColor #FFFFFF
+skinparam boundaryBorderColor #8A83D1
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam titleFontColor #310F53
+
+LAYOUT_LANDSCAPE()
+title C4 · Контейнеры — Веб-приложение «Объектив» (Руководитель)
+
+Person(manager, "Руководитель", "РП, ПТО, технадзор")
+
+System_Boundary(obektiv, "Система «Объектив»") {
+    Container(spa, "Веб-интерфейс руководителя", "React + TypeScript (SPA)", "Портфель, план/факт, календарь, камеры, риск, методология, карта")
+    Container_Boundary(be, "Бэкенд") {
+        Container(api, "REST API", "FastAPI (Python)", "Эндпоинты /health, /upload, /photos, /api/foreman/*, /api/work-status")
+        Container(matching, "Движок сверки", "Python", "Уровни дня 0/1/2/null, правила R1–R8, статусы, три оси, прогноз")
+        Container(dedup, "Модуль дедупликации", "Python", "Один объект = один: макс по камерам / гомография")
+        Container(schedule, "Парсер графика", "Python", "Импорт плана к канонической форме (CSV + синонимы)")
+    }
+    ContainerDb(db, "БД", "PostgreSQL (SQLite для демо)", "Объекты, работы, план/факт, наблюдения, замечания")
+    ContainerDb(store, "Хранилище фото", "Файловая система / S3", "Кадры смен и фото прораба")
+    Container(cv, "CV-сервис", "YOLO (Python)", "Детекция техники и людей на кадрах")
+}
+
+System_Ext(cameras, "Камеры на площадке", "Видеонаблюдение")
+
+Rel(manager, spa, "Открывает в браузере", "HTTPS")
+Rel(spa, api, "Запрашивает данные", "JSON")
+Rel(cameras, api, "Кадры смены")
+Rel(api, store, "Сохраняет / читает кадры")
+Rel(api, cv, "Отправляет изображение", "HTTP")
+Rel(cv, api, "Детекции", "JSON")
+Rel(api, matching, "Передаёт наблюдения и план")
+Rel(matching, dedup, "Устраняет дубли между камерами")
+Rel(schedule, db, "Пишет канонический план")
+Rel(api, db, "Читает и пишет", "SQL")
+Rel(matching, db, "Читает работы, пишет статусы", "SQL")
+
+@enduml

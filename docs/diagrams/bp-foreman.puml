@@ -1,0 +1,69 @@
+@startuml bp_foreman
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontColor #1C1D22
+skinparam defaultFontSize 20
+skinparam ActivityFontSize 20
+skinparam ActivityDiamondFontSize 18
+skinparam ArrowFontSize 18
+skinparam NoteFontSize 18
+skinparam ArrowColor #520978
+skinparam ArrowFontColor #310F53
+skinparam ActivityBackgroundColor #FFD6E4
+skinparam ActivityBorderColor #FC3777
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #8A83D1
+skinparam ActivityDiamondBorderColor #310F53
+skinparam ActivityDiamondFontColor #FFFFFF
+skinparam ActivityStartColor #FF0053
+skinparam ActivityEndColor #310F53
+skinparam ActivityBarColor #520978
+skinparam SwimlaneBorderColor #8A83D1
+skinparam SwimlaneBorderThickness 2
+skinparam SwimlaneTitleBackgroundColor #310F53
+skinparam SwimlaneTitleFontColor #FFFFFF
+skinparam SwimlaneTitleFontSize 18
+skinparam NoteBackgroundColor #FFD6E4
+skinparam NoteBorderColor #FC3777
+skinparam NoteFontColor #310F53
+skinparam TitleFontColor #310F53
+skinparam TitleFontSize 30
+title «Объектив» — Бизнес-процесс: съёмка работ прорабом
+
+|Прораб|
+start
+:Выбирает работу и делает фото (один тап — одно фото);
+|Мобильное приложение|
+:Сохраняет фото ЛОКАЛЬНО;
+note right: Офлайн-первым: интернет не нужен
+if (Есть связь?) then (нет)
+  :Ставит фото в очередь;
+  note right: Досылает автоматически, когда появится связь
+  :Отправляет фото при подключении;
+else (да)
+  :Отправляет фото на бэкенд;
+endif
+|Бэкенд «Объектив»|
+:Принимает фото;
+|CV-сервис (YOLO)|
+:Проверяет качество;
+note right: Тип работы, дефекты, уверенность
+|Бэкенд «Объектив»|
+:Отдаёт фото руководителю на оценку;
+|Руководитель|
+if (Вердикт по фото?) then (принято)
+  :Факт попадает в график работ;
+elseif (частично) then (частично)
+  :Частичный факт и замечание;
+else (на доработку)
+  |Прораб|
+  :Получает задачу переснять;
+  stop
+endif
+|Бэкенд «Объектив»|
+:Обновляет факт и рейтинг бригад;
+|Мобильное приложение|
+:Показывает статус «отправлено» и соревнование;
+stop
+@enduml

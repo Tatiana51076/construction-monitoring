@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Диаграммы «Объектив» — архитектура</title>
+<style>
+  :root{--ground:#E4E6E1;--paper:#FBFBF9;--ink:#1B1D1C;--muted:#6E726B;--rule:#C7CAC2;--pink:#FC3777;--violet:#8A83D1}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 22px 80px;background:var(--paper);min-height:100vh}
+  h1{font-size:28px;margin:0 0 6px}
+  .sub{color:var(--muted);margin:0 0 26px}
+  h2{margin:40px 0 6px;font-size:20px;border-top:1px solid var(--rule);padding-top:20px}
+  h2 .tag{font:600 11px ui-monospace,Consolas,monospace;text-transform:uppercase;letter-spacing:.06em;color:#310F53;display:block;margin-bottom:4px}
+  .file{font:12px ui-monospace,Consolas,monospace;color:var(--muted);margin:0 0 10px}
+  img{max-width:100%;border:1px solid var(--rule);border-radius:10px;background:#fff}
+</style></head>
+<body><div class="wrap">
+  <h1>Диаграммы «Объектив» — архитектура</h1>
+  <p class="sub">C4 (Context / Container / Component) + Sequence. Корпоративные цвета, формат 16:9.</p>
+
+  <h2><span class="tag">Веб · Контекст</span>Компоненты и связи (уровень 1)</h2>
+  <p class="file">c4-web-context.png</p>
+  <img src="c4-web-context.png" alt="C4 Web Context">
+
+  <h2><span class="tag">Веб · Контейнеры</span>Система и внутренние контейнеры (уровень 2)</h2>
+  <p class="file">c4-web-container.png</p>
+  <img src="c4-web-container.png" alt="C4 Web Container">
+
+  <h2><span class="tag">Веб · Компоненты — экраны</span>Интерфейс руководителя</h2>
+  <p class="file">c4-web-component-ui.png</p>
+  <img src="c4-web-component-ui.png" alt="C4 Web Component UI">
+
+  <h2><span class="tag">Веб · Компоненты — ядро</span>Состояние, API-клиент, служебный режим</h2>
+  <p class="file">c4-web-component-core.png</p>
+  <img src="c4-web-component-core.png" alt="C4 Web Component Core">
+
+  <h2><span class="tag">Мобильное · Контекст</span>Компоненты и связи (уровень 1)</h2>
+  <p class="file">c4-mobile-context.png</p>
+  <img src="c4-mobile-context.png" alt="C4 Mobile Context">
+
+  <h2><span class="tag">Мобильное · Контейнеры</span>Приложение и бэкенд (уровень 2)</h2>
+  <p class="file">c4-mobile-container.png</p>
+  <img src="c4-mobile-container.png" alt="C4 Mobile Container">
+
+  <h2><span class="tag">Мобильное · Компоненты</span>Экраны и модули прораба</h2>
+  <p class="file">c4-mobile-component.png</p>
+  <img src="c4-mobile-component.png" alt="C4 Mobile Component">
+
+  <h2><span class="tag">Sequence · Мобильное</span>Путь фото прораба</h2>
+  <p class="file">seq-mobile-photo.png</p>
+  <img src="seq-mobile-photo.png" alt="Sequence Mobile Photo">
+
+  <h2><span class="tag">Sequence · Веб</span>Портфель и карточка объекта</h2>
+  <p class="file">seq-web-view.png</p>
+  <img src="seq-web-view.png" alt="Sequence Web View">
+</div></body></html>

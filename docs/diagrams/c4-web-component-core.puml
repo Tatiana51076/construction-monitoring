@@ -1,0 +1,45 @@
+@startuml c4_web_component_core
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam ArrowFontSize 16
+!include <C4/C4_Component>
+' ── Corporate palette ──
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam arrowColor #520978
+UpdateElementStyle("person", $bgColor="#520978", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_person", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("system", $bgColor="#FF0053", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_system", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container_db", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container_db", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("component", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_component", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+skinparam boundaryBackgroundColor #FFFFFF
+skinparam boundaryBorderColor #8A83D1
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam titleFontColor #310F53
+
+LAYOUT_LANDSCAPE()
+title C4 · Компоненты — Веб: ядро и интеграция
+
+Container_Boundary(spa, "Веб-интерфейс руководителя (React + TypeScript)") {
+    Component(state, "Хранилище состояния", "React state", "Выбранный объект, вкладка, тема, закреплённые проекты")
+    Component(apiClient, "API-клиент", "TypeScript fetch", "Обращения к бэкенду, относительные пути, демо-fallback")
+    Component(backpanel, "Тех. режим (служебный)", "React", "Панель /health, /photos, /api/foreman/*, JSON")
+    Component(theme, "Тема", "React", "Тёмная / светлая")
+}
+
+System_Ext(backend, "Бэкенд «Объектив»", "FastAPI", "REST API")
+
+Rel(state, apiClient, "Передаёт состояние")
+Rel(backpanel, apiClient, "Вызывает в служебном режиме")
+Rel(theme, state, "Переключает тему")
+Rel(apiClient, backend, "REST", "JSON")
+
+@enduml

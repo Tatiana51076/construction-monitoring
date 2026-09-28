@@ -1,0 +1,54 @@
+@startuml c4_web_component_ui
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam ArrowFontSize 16
+!include <C4/C4_Component>
+' ── Corporate palette ──
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam arrowColor #520978
+UpdateElementStyle("person", $bgColor="#520978", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_person", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("system", $bgColor="#FF0053", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_system", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container_db", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container_db", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("component", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_component", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+skinparam boundaryBackgroundColor #FFFFFF
+skinparam boundaryBorderColor #8A83D1
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam titleFontColor #310F53
+
+title C4 · Компоненты — Веб: экраны руководителя
+
+Container_Boundary(spa, "Веб-интерфейс руководителя (React + TypeScript)") {
+    Component(projectList, "Портфель объектов", "React", "Список объектов, сортировка по проблемности")
+    Component(summary, "Сводка объекта", "React", "Сводные показатели объекта")
+    Component(planfact, "План / Факт", "React", "Работы, заявленный и подтверждённый факт")
+    Component(realloc, "Перераспределение бригад", "React", "Отставание и слабые звенья")
+    Component(calendar, "Календарь", "React", "День / неделя / месяц, простои")
+    Component(camera, "Камеры / CV", "React", "Кадры и рамки детекции")
+    Component(methodology, "Методология", "React", "Объяснение вердикта и формул")
+    Component(risk, "Риск", "React", "Оценка 0–100 и составляющие")
+    Component(sitemap, "Карта", "React", "Зоны площадки и техника")
+    Component(contacts, "Контакты", "React", "Ответственные и эскалация")
+    Component(legend, "Легенда статусов", "React", "Расшифровка цветов и осей")
+}
+
+System_Ext(backend, "Бэкенд «Объектив»", "FastAPI", "REST API")
+
+Rel(projectList, backend, "Объекты и статусы", "JSON")
+Rel(planfact, backend, "План и факт", "JSON")
+Rel(calendar, backend, "Дни работ", "JSON")
+Rel(camera, backend, "Кадры и детекции", "JSON")
+Rel(methodology, backend, "Правила и формулы", "JSON")
+Rel(risk, backend, "Оценка риска", "JSON")
+Rel(sitemap, backend, "Зоны площадки", "JSON")
+
+@enduml

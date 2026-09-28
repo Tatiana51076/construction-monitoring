@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Dark theme (default) */
+  :root {
+    --surface-primary: 11 17 32;     /* #0b1120 */
+    --surface-secondary: 17 24 39;   /* #111827 */
+    --surface-tertiary: 30 41 59;    /* #1e293b */
+    --surface-border: 30 41 59;      /* #1e293b */
+    --surface-border-strong: 51 65 85; /* #334155 */
+    --content-primary: 226 232 240;  /* #e2e8f0 */
+    --content-secondary: 148 163 184; /* #94a3b8 */
+    --content-tertiary: 100 116 139; /* #64748b */
+    --content-muted: 71 85 105;      /* #475569 */
+  }
+
+  /* Light theme — ярче и свежее */
+  .light {
+    --surface-primary: 240 245 252;   /* воздушный холодный фон */
+    --surface-secondary: 255 255 255; /* белые карточки */
+    --surface-tertiary: 232 239 249;  /* мягкие подложки */
+    --surface-border: 205 216 235;    /* заметнее рамки */
+    --surface-border-strong: 176 191 218;
+    --content-primary: 11 18 38;      /* контрастный текст */
+    --content-secondary: 38 50 82;
+    --content-tertiary: 74 90 122;
+    --content-muted: 122 136 162;
+  }
+
+  body {
+    @apply font-sans;
+    background-color: rgb(var(--surface-primary));
+    color: rgb(var(--content-primary));
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--content-muted)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgb(var(--content-muted));
+    border-radius: 9999px;
+  }
+}
+
+.stagger-1 { animation-delay: 0.06s; }
+.stagger-2 { animation-delay: 0.12s; }
+.stagger-3 { animation-delay: 0.18s; }
+.stagger-4 { animation-delay: 0.24s; }
+.stagger-5 { animation-delay: 0.30s; }
+.stagger-6 { animation-delay: 0.36s; }
+
+.dial-sheen {
+  background: conic-gradient(from -90deg, #34d399 0deg, #fbbf24 120deg, #f87171 240deg, #334155 360deg);
+}
+
+@keyframes scanline {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+/* ─── Светлая тема: ярче и креативнее (концепцию не меняем) ─── */
+
+/* Цветной фон приложения */
+.app-bg {
+  background-color: rgb(var(--surface-primary));
+}
+html.light .app-bg {
+  background:
+    radial-gradient(1100px 600px at 8% -10%, rgba(56, 189, 248, 0.22), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(139, 92, 246, 0.16), transparent 55%),
+    radial-gradient(900px 620px at 50% 115%, rgba(16, 185, 129, 0.14), transparent 60%),
+    rgb(var(--surface-primary));
+}
+
+/* Контрастные статусные цвета в светлой теме */
+html.light .text-success-200, html.light .text-success-300 { color: #047857; }
+html.light .text-danger-200,  html.light .text-danger-300  { color: #b91c1c; }
+html.light .text-warning-200, html.light .text-warning-300 { color: #b45309; }
+html.light .text-accent-400 { color: #0369a1; }
+html.light .text-ink-300 { color: #475569; }
+
+/* Типы техники — насыщенные цвета в светлой теме */
+html.light .text-orange-300 { color: #c2410c; }
+html.light .text-amber-300  { color: #b45309; }
+html.light .text-stone-300  { color: #57534e; }
+html.light .text-zinc-300   { color: #3f3f46; }
+html.light .text-sky-300    { color: #0369a1; }
+html.light .text-slate-300  { color: #334155; }
+html.light .text-lime-300   { color: #4d7c0f; }
+html.light .text-yellow-300 { color: #a16207; }
+html.light .text-teal-300   { color: #0f766e; }
+html.light .text-cyan-300   { color: #0e7490; }
+html.light .text-red-300    { color: #b91c1c; }
+html.light .text-green-300  { color: #15803d; }
+html.light .text-blue-300   { color: #1d4ed8; }
+html.light .text-indigo-300 { color: #4338ca; }
+html.light .text-violet-300 { color: #6d28d9; }
+html.light .text-rose-300   { color: #be123c; }
+html.light .text-pink-300   { color: #be185d; }

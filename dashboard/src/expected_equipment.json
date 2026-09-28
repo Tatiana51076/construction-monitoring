@@ -1,0 +1,65 @@
+{
+  "version": "1.0",
+  "note": "ЕДИНЫЙ источник: ожидаемая техника по работам. class = slug класса модели (YOLO, 17 классов, см. data.ts). min = минимальное кол-во для подтверждения.",
+  "classes": [
+    { "id": 0,  "slug": "dump_truck",              "ru": "Самосвал",                  "en": "Dump truck" },
+    { "id": 1,  "slug": "excavator",               "ru": "Экскаватор",                "en": "Excavator" },
+    { "id": 2,  "slug": "motor_grader",            "ru": "Автогрейдер",               "en": "Motor grader" },
+    { "id": 3,  "slug": "roller",                  "ru": "Каток",                     "en": "Roller" },
+    { "id": 4,  "slug": "crane_manipulator",       "ru": "Кран-манипулятор",          "en": "Crane manipulator" },
+    { "id": 5,  "slug": "gazelle",                 "ru": "Газель",                    "en": "Gazelle" },
+    { "id": 6,  "slug": "forklift_standard",       "ru": "Погрузчик стандартный",     "en": "Forklift Standart" },
+    { "id": 7,  "slug": "bucket_loader_big",       "ru": "Большой ковшовый погрузчик","en": "Bucket loader Big" },
+    { "id": 8,  "slug": "mixer",                   "ru": "Миксер",                    "en": "Mixer" },
+    { "id": 9,  "slug": "tanker",                  "ru": "Цистерна",                  "en": "Tanker" },
+    { "id": 10, "slug": "bulldozer",               "ru": "Бульдозер",                 "en": "Bulldozer" },
+    { "id": 11, "slug": "cleaning_equipment",      "ru": "Уборочная техника",         "en": "Cleaning equipment" },
+    { "id": 12, "slug": "truck",                   "ru": "Грузовик",                  "en": "Truck" },
+    { "id": 13, "slug": "trailer",                 "ru": "Прицеп",                    "en": "Trailer" },
+    { "id": 14, "slug": "forklift_giraffe",        "ru": "Погрузчик «Жираф»",         "en": "Forklift Giraffe" },
+    { "id": 15, "slug": "bucket_loader_standard",  "ru": "Стандартный ковшовый погрузчик", "en": "Bucket loader Standart" },
+    { "id": 16, "slug": "autocran",                "ru": "Автокран",                  "en": "Autocran" }
+  ],
+  "works": {
+    "Бетонирование":        { "workId": "concrete-c", "required": { "mixer": 1, "crane_manipulator": 1, "autocran": 1 } },
+    "Армирование":          { "workId": "armature-2", "required": { "bucket_loader_standard": 1, "dump_truck": 1 } },
+    "Котлован":             { "workId": "pit-a",      "required": { "excavator": 1, "dump_truck": 2, "bucket_loader_standard": 1 } },
+    "Земляные работы":      { "workId": "m3",         "required": { "excavator": 1, "dump_truck": 1 } },
+    "Монолит":              { "workId": "monolith-c", "required": { "autocran": 1, "crane_manipulator": 1 } },
+    "Каркас":               { "workId": "m1",         "required": { "autocran": 1, "truck": 1 } },
+    "Фундамент":            { "workId": "foundation-b","required": { "mixer": 1, "excavator": 1 } },
+    "Подготовка территории":{ "workId": "prep-1",     "required": { "bulldozer": 1, "truck": 1 } },
+    "Дорожные работы":      { "workId": "road-1",     "required": { "roller": 1, "dump_truck": 1 } },
+    "Отделка":              { "workId": "s1",         "required": { "gazelle": 1, "truck": 1 } },
+    "Благоустройство":      { "workId": "s3",         "required": { "excavator": 1, "dump_truck": 1 } }
+  },
+  "synonyms": {
+    "бетон":     "Бетонирование",
+    "заливк":    "Бетонирование",
+    "армир":     "Армирование",
+    "котлован":  "Котлован",
+    "землян":    "Земляные работы",
+    "монолит":   "Монолит",
+    "каркас":    "Каркас",
+    "фундамент": "Фундамент",
+    "подготов":  "Подготовка территории",
+    "дорог":     "Дорожные работы",
+    "отделк":    "Отделка",
+    "благоустр": "Благоустройство"
+  },
+  "work_slugs": {
+    "concrete": "Бетонирование",
+    "rebar":    "Армирование",
+    "doors":    "Установка дверей",
+    "monolith": "Монолит",
+    "pit":      "Котлован",
+    "foundation": "Фундамент"
+  },
+  "verdict": {
+    "min_confidence": 0.5,
+    "confirmed": "найден хотя бы один класс из required (с уверенностью >= min_confidence)",
+    "not_confirmed": "классов из required нет, но детекции были",
+    "review": "детекций нет совсем → прорабу «переснять»",
+    "unsure": "уверенность ниже порога"
+  }
+}

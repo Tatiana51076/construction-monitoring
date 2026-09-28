@@ -1,0 +1,50 @@
+@startuml c4_web_context
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam ArrowFontSize 16
+!include <C4/C4_Context>
+' ── Corporate palette ──
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam arrowColor #520978
+UpdateElementStyle("person", $bgColor="#520978", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_person", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("system", $bgColor="#FF0053", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_system", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container_db", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container_db", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("component", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_component", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+skinparam boundaryBackgroundColor #FFFFFF
+skinparam boundaryBorderColor #8A83D1
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam titleFontColor #310F53
+
+LAYOUT_LANDSCAPE()
+title C4 · Контекст — Веб-приложение «Объектив» (Руководитель)
+
+Person(manager, "Руководитель", "РП, ПТО, технадзор", "Смотрит портфель объектов, план/факт, замечания, риск и прогноз срока")
+Person(contractor_staff, "Подрядчик", "Ответственный на объекте", "Заявляет процент выполнения работ, отвечает на замечания")
+
+System(web, "Веб-приложение «Объектив»", "React + TypeScript", "Портфель объектов, план/факт по камерам, замечания, риск и прогноз срока")
+System(backend, "Бэкенд «Объектив»", "FastAPI (Python)", "Единый API: приём кадров, сверка плана и факта, замечания, риск")
+System(cv, "CV-сервис", "YOLO (нейросеть)", "Находит 17 классов техники и людей на кадрах, отдаёт класс, уверенность и bbox")
+
+System_Ext(cameras, "Камеры на площадке", "Видеонаблюдение", "Кадры со строительной площадки")
+System_Ext(schedule, "Система графиков подрядчика", "График / КС-2", "Календарный план и заявленный факт выполнения")
+
+Rel(manager, web, "Работает в браузере")
+Rel(contractor_staff, schedule, "Ведёт отчётность")
+Rel(schedule, backend, "График и заявленный факт", "CSV / API")
+Rel(cameras, backend, "Кадры смены", "Файлы / RTSP-снимок")
+Rel(backend, cv, "Передаёт изображение", "HTTP")
+Rel(cv, backend, "Детекции: класс, уверенность, bbox", "JSON")
+Rel(backend, web, "Статусы, замечания, риск", "HTTPS / JSON")
+Rel(web, manager, "Показывает честную картину стройки")
+
+@enduml

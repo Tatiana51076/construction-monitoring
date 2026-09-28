@@ -1,0 +1,62 @@
+@startuml c4_mobile_component
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam ArrowFontSize 16
+!include <C4/C4_Component>
+' ── Corporate palette ──
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam arrowColor #520978
+UpdateElementStyle("person", $bgColor="#520978", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_person", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("system", $bgColor="#FF0053", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_system", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container_db", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container_db", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("component", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_component", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+skinparam boundaryBackgroundColor #FFFFFF
+skinparam boundaryBorderColor #8A83D1
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam titleFontColor #310F53
+
+LAYOUT_LANDSCAPE()
+title C4 · Компоненты — Мобильное приложение прораба
+
+Container_Boundary(app, "Мобильное приложение прораба") {
+    Component(worklist, "Экран «Мои работы»", "UI", "График и наряды бригады, выбор работы")
+    Component(capture, "Экран съёмки", "UI", "Один тап — одно фото")
+    Component(fact, "Экран «Факт»", "UI", "Фактически выполненное по бригаде")
+    Component(leaderboard, "Экран «Соревнование»", "UI", "Прозрачный рейтинг бригад на объекте")
+    Component(syncstatus, "Экран «Отправка»", "UI", "Статус очереди: сохранено / в очереди / отправлено")
+    Component(cameractl, "Контроллер камеры", "Камера устройства", "Съёмка и превью кадра")
+    Component(photostore, "Локальное хранилище фото", "SQLite + файлы", "Фото и метаданные хранятся на телефоне")
+    Component(queue, "Очередь офлайн-отправки", "Модуль очереди", "Ставит фото в очередь, повторяет отправку")
+    Component(sync, "Движок синхронизации", "Фоновой воркер", "Следит за сетью, досылает пачками")
+    Component(apiclient, "API-клиент", "HTTP", "Связь с бэкендом «Объектив»")
+    Component(auth, "Сессия пользователя", "Локально", "Кто прораб и на каком объекте")
+    Component(config, "Настройки / наряды", "Локальный кэш", "График работ и состав бригад на устройстве")
+}
+
+System_Ext(backend, "Бэкенд «Объектив»", "FastAPI", "REST API")
+
+Rel(worklist, capture, "Открывает съёмку по работе")
+Rel(capture, cameractl, "Снимает кадр")
+Rel(cameractl, photostore, "Сохраняет фото и метаданные")
+Rel(photostore, queue, "Регистрирует фото в очереди")
+Rel(queue, sync, "Передаёт готовые к отправке")
+Rel(sync, apiclient, "Отправляет фото")
+Rel(sync, syncstatus, "Обновляет статус")
+Rel(apiclient, backend, "REST", "HTTPS / JSON, офлайн-повторы")
+Rel(backend, apiclient, "Статусы, факт, рейтинг")
+Rel(fact, config, "Читает наряды")
+Rel(leaderboard, apiclient, "Запрашивает рейтинг")
+Rel(worklist, config, "Берёт график работ")
+Rel(auth, apiclient, "Добавляет учётные данные")
+
+@enduml

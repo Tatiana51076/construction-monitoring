@@ -1,0 +1,72 @@
+@startuml bp_sverka
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontColor #1C1D22
+skinparam defaultFontSize 20
+skinparam ActivityFontSize 20
+skinparam ActivityDiamondFontSize 18
+skinparam ArrowFontSize 18
+skinparam NoteFontSize 18
+skinparam ArrowColor #520978
+skinparam ArrowFontColor #310F53
+skinparam ActivityBackgroundColor #FFD6E4
+skinparam ActivityBorderColor #FC3777
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #8A83D1
+skinparam ActivityDiamondBorderColor #310F53
+skinparam ActivityDiamondFontColor #FFFFFF
+skinparam ActivityStartColor #FF0053
+skinparam ActivityEndColor #310F53
+skinparam ActivityBarColor #520978
+skinparam SwimlaneBorderColor #8A83D1
+skinparam SwimlaneBorderThickness 2
+skinparam SwimlaneTitleBackgroundColor #310F53
+skinparam SwimlaneTitleFontColor #FFFFFF
+skinparam SwimlaneTitleFontSize 18
+skinparam NoteBackgroundColor #FFD6E4
+skinparam NoteBorderColor #FC3777
+skinparam NoteFontColor #310F53
+skinparam TitleFontColor #310F53
+skinparam TitleFontSize 30
+title «Объектив» — Бизнес-процесс: сверка плана и факта
+
+|Камеры|
+start
+:Кадры смены со строительной площадки;
+|CV-сервис (YOLO)|
+:Детекция техники и людей;
+note right: 17 классов; класс, уверенность, bbox
+|Бэкенд «Объектив»|
+:Дедупликация между камерами;
+note right: Один объект = один, а не N камер
+:Уровень дня по работе;
+note right: 2 — работа идёт\n1 — только ресурсы\n0 — ничего\nnull — кадров нет
+if (Покрытие рабочих дней < 60% ?) then (да)
+  :Статус «недостаточно данных»;
+  note right: Вердикт не выставляется
+  stop
+else (нет)
+  :Сверка с планом и отчётом подрядчика;
+  note right: Правила R1–R8, пороги на работу
+endif
+if (Работа подтверждена камерой?) then (да)
+  :Статус «работа идёт»;
+else (нет)
+  if (Подрядчик заявил 100% ?) then (да)
+    :Замечание «ложное завершение»;
+    note right: Высокая острота
+  elseif (Техника стоит всю смену?) then (да)
+    :Замечание «только ресурсы»;
+  else (нет)
+    :Замечание «ничего не обнаружено»;
+  endif
+endif
+:Расчёт трёх осей;
+note right: наблюдение / отчётность / сроки
+:Оценка риска и прогноз срока;
+|Руководитель|
+:Портфель объектов;
+note right: Сортировка по проблемности
+stop
+@enduml

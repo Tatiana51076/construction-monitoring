@@ -1,0 +1,66 @@
+@startuml c4_mobile_container
+skinparam defaultFontSize 20
+skinparam TitleFontSize 30
+skinparam ArrowFontSize 16
+!include <C4/C4_Container>
+' ── Corporate palette ──
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam arrowColor #520978
+UpdateElementStyle("person", $bgColor="#520978", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_person", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("system", $bgColor="#FF0053", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("external_system", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("container_db", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_container_db", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+UpdateElementStyle("component", $bgColor="#FFD6E4", $fontColor="#1C1D22", $borderColor="#FC3777")
+UpdateElementStyle("external_component", $bgColor="#8A83D1", $fontColor="#FFFFFF", $borderColor="#310F53")
+skinparam boundaryBackgroundColor #FFFFFF
+skinparam boundaryBorderColor #8A83D1
+skinparam noteBackgroundColor #FFD6E4
+skinparam noteBorderColor #FC3777
+skinparam noteFontColor #310F53
+skinparam titleFontColor #310F53
+
+LAYOUT_LANDSCAPE()
+title C4 · Контейнеры — Мобильное приложение прораба
+
+Person(foreman, "Прораб", "Бригадир / ответственный на объекте")
+
+System_Boundary(obektiv, "Система «Объектив»") {
+    Container_Boundary(app, "Мобильное приложение прораба") {
+        Container(ui, "Экраны приложения", "Мобильный UI", "Список работ, съёмка, факт, рейтинг бригад, статус отправки")
+        Container(camera, "Модуль камеры", "Камера устройства", "Съёмка фото результата работы")
+        Container(queue, "Очередь фото", "Локальное хранилище", "Фото сохраняется ДО отправки: сохранено → в очереди → отправлено")
+        Container(sync, "Сервис синхронизации", "Фоновой воркер", "Досылает накопленные фото, когда появляется связь")
+    }
+    Container_Boundary(be, "Бэкенд") {
+        Container(api, "REST API", "FastAPI (Python)", "Приём фото, связь с нейросетью и приложением, выдача факта и рейтинга")
+    }
+    Container(cv, "CV-сервис", "YOLO (Python)", "Проверяет качество и распознаёт работу на фото")
+    ContainerDb(store, "Хранилище фото", "Файловая система / S3", "Фото прораба и кадры смен")
+    ContainerDb(db, "БД", "PostgreSQL (SQLite для демо)", "Фото, факт работ, рейтинг бригад")
+    Container(webapp, "Веб-приложение «Объектив»", "React + TypeScript", "Основное приложение: график, приёмка, факт, рейтинг")
+}
+
+System_Ext(network, "Мобильная сеть", "2G/3G/4G/Wi-Fi", "Связь может отсутствовать — работаем офлайн")
+
+Rel(foreman, ui, "Снимает и смотрит", "Тач")
+Rel(ui, camera, "Запускает съёмку")
+Rel(camera, queue, "Сохраняет фото локально")
+Rel(queue, sync, "Отдаёт накопленные фото")
+Rel(sync, network, "Использует")
+Rel(sync, api, "Отправляет фото с метаданными", "HTTPS")
+Rel(api, store, "Сохраняет фото")
+Rel(api, cv, "Передаёт изображение", "HTTP")
+Rel(cv, api, "Параметры качества", "JSON")
+Rel(api, db, "Читает и пишет", "SQL")
+Rel(api, webapp, "Отдаёт фото на оценку")
+Rel(webapp, api, "Возвращает вердикт")
+Rel(api, sync, "Статусы, факт, рейтинг", "JSON")
+Rel(webapp, api, "График и наряды бригад")
+
+@enduml

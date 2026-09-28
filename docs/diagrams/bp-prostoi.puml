@@ -1,0 +1,55 @@
+@startuml bp_prostoi
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontColor #1C1D22
+skinparam defaultFontSize 20
+skinparam ActivityFontSize 20
+skinparam ActivityDiamondFontSize 18
+skinparam ArrowFontSize 18
+skinparam NoteFontSize 18
+skinparam ArrowColor #520978
+skinparam ArrowFontColor #310F53
+skinparam ActivityBackgroundColor #FFD6E4
+skinparam ActivityBorderColor #FC3777
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityDiamondBackgroundColor #8A83D1
+skinparam ActivityDiamondBorderColor #310F53
+skinparam ActivityDiamondFontColor #FFFFFF
+skinparam ActivityStartColor #FF0053
+skinparam ActivityEndColor #310F53
+skinparam ActivityBarColor #520978
+skinparam SwimlaneBorderColor #8A83D1
+skinparam SwimlaneBorderThickness 2
+skinparam SwimlaneTitleBackgroundColor #310F53
+skinparam SwimlaneTitleFontColor #FFFFFF
+skinparam SwimlaneTitleFontSize 18
+skinparam NoteBackgroundColor #FFD6E4
+skinparam NoteBorderColor #FC3777
+skinparam NoteFontColor #310F53
+skinparam TitleFontColor #310F53
+skinparam TitleFontSize 30
+title «Объектив» — Бизнес-процесс: простои по акту
+
+|Подрядчик|
+start
+:Сообщает о простое\n(погода, материалы, доступ, технология);
+|Руководитель|
+if (Есть подтверждающий документ?) then (да)
+  :Подтверждает простой по акту;
+  |Бэкенд «Объектив»|
+  :День помечается СЕРЫМ;
+  :Исключается из расчёта подтверждения;
+  note right: Не снижает и не повышает статус работы
+else (нет)
+  :Оставляет «требует подтверждения»;
+  |Бэкенд «Объектив»|
+  :День учитывается в расчёте;
+  if (Мало кадров?) then (да)
+    :Статус «недостаточно данных»;
+  else (нет)
+    :Статус по наблюдению (по уровню дня);
+  endif
+endif
+stop
+@enduml
