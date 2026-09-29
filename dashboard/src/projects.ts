@@ -9,12 +9,6 @@ export function localDateString(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-// Локальная дата для шапки: «29 сен 2026»
-const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-export function dateLabelString(d: Date): string {
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
-}
-
 // Пн–Пт текущей недели (неделя начинается с понедельника)
 export function currentWeekDates(): string[] {
   const base = new Date();
@@ -253,7 +247,7 @@ export interface Project {
 
 const severnySummary: ProjectSummary = {
   objectName: 'ЖК «Северный», корпус 2',
-  dateLabel: dateLabelString(new Date()),
+  dateLabel: '28 сен 2026',
   schedule: 'Пятидневка',
   cameras: 3,
   totalWorks: 6,
@@ -393,7 +387,7 @@ const severnyMonthSummaries: DaySummary[] = [
 
 const meridianSummary: ProjectSummary = {
   objectName: 'ТЦ «Меридиан»',
-  dateLabel: dateLabelString(new Date()), schedule: 'Пятидневка', cameras: 2,
+  dateLabel: '28 сен 2026', schedule: 'Пятидневка', cameras: 2,
   totalWorks: 4, requiresReaction: 0, askReason: 1, inProgress: 2, outOfScope: 1,
   planPct: 48, confirmedPct: 42, gapPct: 6, gapDays: 2,
   totalDelayDays: 2, compensatedDays: 0, netDelayDays: 2,
@@ -474,7 +468,7 @@ const meridianMonthSummaries: DaySummary[] = [
 
 const schoolSummary: ProjectSummary = {
   objectName: 'Школа №147',
-  dateLabel: dateLabelString(new Date()), schedule: 'Пятидневка', cameras: 2,
+  dateLabel: '28 сен 2026', schedule: 'Пятидневка', cameras: 2,
   totalWorks: 3, requiresReaction: 0, askReason: 0, inProgress: 3, outOfScope: 0,
   planPct: 60, confirmedPct: 60, gapPct: 0, gapDays: 0,
   totalDelayDays: 0, compensatedDays: 0, netDelayDays: 0,

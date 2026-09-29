@@ -22,7 +22,7 @@ import {
   ScanLine,
   CalendarRange,
 } from 'lucide-react';
-import { dateLabelString, type Project, type ProjectSummary, type RiskScore, type CalendarEvent, type DaySummary } from '@/projects';
+import type { Project, ProjectSummary, RiskScore, CalendarEvent, DaySummary } from '@/projects';
 import { STATUS_META, EQUIPMENT_META, DEVIATION_VERDICT_META, EVENT_STATUS_META, type EquipmentType, type DeviationVerdict } from '@/data';
 import { CalendarView } from './CalendarView';
 
@@ -58,7 +58,7 @@ function aggregateSummaries(projects: Project[]): ProjectSummary & { projectCoun
       return acc;
     },
     {
-      objectName: '', dateLabel: dateLabelString(new Date()), schedule: 'Пятидневка',
+      objectName: '', dateLabel: '28 сен 2026', schedule: 'Пятидневка',
       cameras: 0, totalWorks: 0, requiresReaction: 0, askReason: 0, inProgress: 0, outOfScope: 0,
       planPct: 0, confirmedPct: 0, gapPct: 0, gapDays: 0,
       totalDelayDays: 0, compensatedDays: 0, netDelayDays: 0,
