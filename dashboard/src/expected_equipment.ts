@@ -83,14 +83,14 @@ export async function loadPhotoStatuses(baseUrl = ''): Promise<PhotoStatus[]> {
   const list: any[] = Array.isArray(data) ? data : (data.photos || []);
   return list.map((p: any) => ({
     file: p.image_url || p.file || '',
-    brigade: p.work || p.brigade || '',
+    brigade: p.brigade || p.work || '', // приоритет brigade, fallback на work
     work: p.work || '',
     zone: p.zone || '',
     timestamp: p.taken_at || p.timestamp || '',
     status: (p.works_status?.[0]?.status || p.status || 'unsure') as PhotoStatus['status'],
     found: p.works_status?.[0]?.found || p.found || [],
     confidence: p.detections?.[0]?.confidence,
-    detections: (p.detections || []).map((d: any) => ({ class: d.class || '', confidence: d.confidence || 0 })),
+    detections: (p.detections || []).map((d: any) => ({ class: d.class || '', confidence: d.confidence || 0, bbox: d.bbox || [] })),
   }));
 }
 

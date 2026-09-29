@@ -236,19 +236,11 @@ function UploadPanel({ devMode, onUploaded }: { devMode: boolean; onUploaded?: (
       setStatus('ok');
       onUploaded?.();
     } catch {
-      // бэкенд недоступен — рисуем демонстрационные рамки по размеру фото,
-      // чтобы было видно формат (bbox = центр + размеры, пиксели)
-      const W = size?.w ?? 1200;
-      const H = size?.h ?? 800;
-      const demoDetections: ApiDetection[] = [
-        { class: 'Excavator', confidence: 0.92, bbox: [Math.round(W * 0.30), Math.round(H * 0.58), Math.round(W * 0.22), Math.round(H * 0.26)] },
-        { class: 'Dump truck', confidence: 0.87, bbox: [Math.round(W * 0.66), Math.round(H * 0.40), Math.round(W * 0.22), Math.round(H * 0.20)] },
-        { class: 'Forklift Standart', confidence: 0.79, bbox: [Math.round(W * 0.46), Math.round(H * 0.78), Math.round(W * 0.16), Math.round(H * 0.16)] },
-      ];
-      setDemoSize({ w: W, h: H });
-      setResponse({ status: 'ok', file: file.name, detections: demoDetections });
-      setDemo(true);
-      setStatus('ok');
+      // бэкенд недоступен — честно показываем ошибку, НЕ рисуем выдуманные рамки
+      setResponse(null);
+      setDemo(false);
+      setDemoSize(null);
+      setStatus('error');
     }
   }
 
@@ -293,7 +285,7 @@ function UploadPanel({ devMode, onUploaded }: { devMode: boolean; onUploaded?: (
           <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-surface-border bg-surface-tertiary/50 px-3 py-2 text-xs font-semibold text-content-secondary transition hover:bg-surface-tertiary">
             <Upload className="h-3.5 w-3.5" />
             {file ? 'Выбрать другое' : 'Выбрать снимок'}
-            <input type="file" accept="image/*" className="hidden" onChange={onPick} />
+            <input type="file" accept="image/jpeg,image/png" className="hidden" onChange={onPick} />
           </label>
           <button
             onClick={send}

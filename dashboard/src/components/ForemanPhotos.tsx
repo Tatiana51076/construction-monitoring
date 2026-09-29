@@ -71,6 +71,14 @@ export function ForemanPhotos() {
                 <div className="space-y-1 p-3">
                   <div className="text-sm font-semibold text-content-primary">{rw?.workName || p.work || '—'}</div>
                   {p.zone && <div className="text-[11px] text-content-tertiary">{p.zone}</div>}
+                  {p.brigade && p.brigade !== p.work && (
+                    <div className="text-[10px] text-content-secondary">Бригада: {p.brigade}</div>
+                  )}
+                  {p.timestamp && (
+                    <div className="text-[10px] text-content-tertiary">
+                      {new Date(p.timestamp).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
                     <span className={`rounded border px-2 py-0.5 text-[10px] font-semibold ${c.cls}`}>{c.label}</span>
                     {p.found && p.found.length > 0 && (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PROJECTS, type Project, loadLiveWorks } from '@/projects';
+import { PROJECTS, type Project, loadLiveWorks, computeSummaryStats, type CalendarEvent, localDateString } from '@/projects';
 import { SummaryPanel } from '@/components/SummaryPanel';
 import { WorkGroups } from '@/components/WorkGroups';
 import { ReallocationPanel } from '@/components/ReallocationPanel';
@@ -115,7 +115,7 @@ function App() {
         setLiveData({ ...selectedProject, workItems: liveWorks });
       })
       .catch(() => {
-        setLiveData(selectedProject); // fallback на демо
+        setLiveData({ ...selectedProject, workItems: [] }); // пустой список вместо демо
       })
       .finally(() => setLoading(false));
   }, [selectedProject, devMode, liveKey]);
@@ -135,6 +135,28 @@ function App() {
   function backToList() {
     navigate(null);
   }
+
+  // Преобразуем живые работы из /photos в события календаря (ТОЛЬКО СЕГОДНЯ)
+  const today = localDateString(new Date());
+  const liveCalendarEvents: CalendarEvent[] = liveData?.workItems
+    ? liveData.workItems
+        .filter(w => w.photoUrl && w.timestamp)
+        .map((w, idx) => ({
+          id: `photo-${w.id}-${idx}`,
+          workId: w.id,
+          title: w.title,
+          contractor: w.contractor,
+          date: w.timestamp?.split('T')[0] || today,
+          startHour: 8,
+          endHour: 12,
+          status: (w.status === 'in_progress' ? 'confirmed' : w.status === 'requires_reaction' ? 'delayed' : 'idle') as CalendarEvent['status'],
+          note: w.verdictLabel || '',
+        }))
+        .filter(ev => ev.date === today)  // ТОЛЬКО события на сегодня
+    : [];
+
+  // ТОЛЬКО живые данные, без демо
+  const calendarEventsToUse = liveCalendarEvents;
 
   return (
     <div className="app-bg min-h-screen">
@@ -213,7 +235,10 @@ function App() {
               </button>
             </div>
 
-            <SummaryPanel summary={(liveData || selectedProject).summary} />
+            <SummaryPanel summary={{
+              ...(liveData || selectedProject).summary,
+              ...computeSummaryStats((liveData || selectedProject).workItems),
+            }} />
 
             <div className="mt-6">
               {loading ? (
@@ -237,16 +262,16 @@ function App() {
               )}
               {mode === 'calendar' && (
                 <CalendarView
-                  events={selectedProject.calendarEvents}
-                  monthSummaries={selectedProject.monthSummaries}
-                  todayDate={selectedProject.todayDate}
-                  weekDates={selectedProject.weekDates}
+                  events={calendarEventsToUse}
+                  monthSummaries={(liveData || selectedProject).monthSummaries}
+                  todayDate={(liveData || selectedProject).todayDate}
+                  weekDates={(liveData || selectedProject).weekDates}
                 />
               )}
-              {mode === 'cv' && <CameraDetectionView project={selectedProject} devMode={devMode} onUploaded={() => setLiveKey(k => k + 1)} />}
-              {mode === 'methodology' && <MethodologyView project={selectedProject} />}
-              {mode === 'risk' && <RiskScorePanel riskScore={selectedProject.riskScore} />}
-              {mode === 'map' && <SiteMapView project={selectedProject} />}
+              {mode === 'cv' && <CameraDetectionView project={liveData || selectedProject} devMode={devMode} onUploaded={() => setLiveKey(k => k + 1)} />}
+              {mode === 'methodology' && <MethodologyView project={liveData || selectedProject} />}
+              {mode === 'risk' && <RiskScorePanel riskScore={(liveData || selectedProject).riskScore} />}
+              {mode === 'map' && <SiteMapView project={liveData || selectedProject} />}
             </div>
 
             {/* Contact card — always visible in project detail */}

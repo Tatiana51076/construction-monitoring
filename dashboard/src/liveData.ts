@@ -22,20 +22,24 @@ export async function loadLiveWorks(
     const rules = await loadExpectedEquipment();
 
     return demoWorks.map(work => {
-      const workPhotos = photos.filter(p => resolveWorkId(p.brigade || '', rules) === work.id);
+      // Сопоставляем фото с работой: проверяем и brigade, и work (из мобильного приложения)
+      const workPhotos = photos.filter(p => {
+        const hint = p.work || p.brigade || '';
+        return resolveWorkId(hint, rules) === work.id;
+      });
       if (workPhotos.length === 0) {
-        if (photos.length > 0) {
-          // сервер жив, но фото по этой работе нет → честно «не проверяется»
-          return {
-            ...work,
-            verdict: 'not_checked',
-            verdictLabel: 'Не проверяется',
-            status: 'out_of_scope',
-            confirmedPct: 0,
-            detail: 'Нет фото с площадки — не проверяется',
-          };
-        }
-        return work; // сервер не отвечает → демо
+        // сервер жив, но фото по этой работе нет → честно «не проверяется»
+        return {
+          ...work,
+          verdict: 'not_checked',
+          verdictLabel: 'Не проверяется',
+          status: 'out_of_scope',
+          confirmedPct: 0,
+          detail: 'Нет фото с площадки — не проверяется',
+          photoUrl: undefined,
+          photoStatus: undefined,
+          timestamp: undefined,
+        };
       }
 
       // Подсчёт статусов по всем фото работы
@@ -45,7 +49,8 @@ export async function loadLiveWorks(
       workPhotos.forEach(p => {
         let st = p.status;
         if (st === 'unsure' && rules) {
-          st = computeVerdict(p.brigade || '', p.detections, rules).status;
+          const hint = p.work || p.brigade || '';
+          st = computeVerdict(hint, p.detections, rules).status;
         }
         if (st === 'confirmed' || st === 'not_confirmed' || st === 'review') {
           counts[st] += 1;
@@ -82,10 +87,21 @@ export async function loadLiveWorks(
           : `Требуется переснять (${counts.review} из ${total} фото)`,
         photoUrl: photo.file,
         photoStatus: status,
+        timestamp: photo.timestamp || '',
       };
     });
   } catch (err) {
-    console.warn('Live data failed, using demo:', err);
-    return demoWorks;
+    console.warn('Live data failed:', err);
+    // Возвращаем работы с статусом "не проверяется" вместо демо
+    return demoWorks.map(work => ({
+      ...work,
+      verdict: 'not_checked' as const,
+      verdictLabel: 'Не проверяется',
+      status: 'out_of_scope' as const,
+      confirmedPct: 0,
+      detail: 'Сервер недоступен — живые данные не загружены',
+      photoUrl: undefined,
+      photoStatus: undefined,
+    }));
   }
 }

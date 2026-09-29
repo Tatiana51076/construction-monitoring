@@ -1,6 +1,35 @@
 import type { EquipmentType, WorkStatus, CameraVerdict, ConstructionPhase, DeviationVerdict, EventStatus, CalendarScale } from '@/data';
 export { loadLiveWorks } from './liveData';
 
+// Локальная дата в формате YYYY-MM-DD (не UTC)
+export function localDateString(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// Локальная дата для шапки: «29 сен 2026»
+const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+export function dateLabelString(d: Date): string {
+  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// Пн–Пт текущей недели (неделя начинается с понедельника)
+export function currentWeekDates(): string[] {
+  const base = new Date();
+  const dow = (base.getDay() + 6) % 7; // Пн=0 … Вс=6
+  const monday = new Date(base);
+  monday.setDate(base.getDate() - dow);
+  const dates: string[] = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(localDateString(d));
+  }
+  return dates;
+}
+
 // ─── Domain types ─────────────────────────────────────────────────────────
 
 export interface WorkItem {
@@ -25,6 +54,7 @@ export interface WorkItem {
   expectedEquipment?: EquipmentType[];
   photoUrl?: string; // URL фото прораба (из /photos)
   photoStatus?: 'confirmed' | 'not_confirmed' | 'review' | 'unsure';
+  timestamp?: string; // время съёмки фото (из /photos)
 }
 
 export interface SiteZone {
@@ -166,6 +196,18 @@ export interface ProjectSummary {
   totalDelayHours: number;
 }
 
+// Подсчёт сводных плиток из живых работ
+export function computeSummaryStats(workItems: WorkItem[]): { requiresReaction: number; askReason: number; inProgress: number; outOfScope: number; totalWorks: number } {
+  const stats = { requiresReaction: 0, askReason: 0, inProgress: 0, outOfScope: 0, totalWorks: workItems.length };
+  for (const w of workItems) {
+    if (w.status === 'requires_reaction') stats.requiresReaction++;
+    else if (w.status === 'ask_reason') stats.askReason++;
+    else if (w.status === 'in_progress') stats.inProgress++;
+    else if (w.status === 'out_of_scope') stats.outOfScope++;
+  }
+  return stats;
+}
+
 export interface ProjectKPIs {
   schedulePerformanceIndex: number;
   costPerformanceIndex: number;
@@ -211,7 +253,7 @@ export interface Project {
 
 const severnySummary: ProjectSummary = {
   objectName: 'ЖК «Северный», корпус 2',
-  dateLabel: '28 сен 2026',
+  dateLabel: dateLabelString(new Date()),
   schedule: 'Пятидневка',
   cameras: 3,
   totalWorks: 6,
@@ -235,24 +277,24 @@ const severnyWorkItems: WorkItem[] = [
 ];
 
 const severnyZones: SiteZone[] = [
-  { id: 'zone-a', name: 'Зона A — Котлован', cameraId: 'cam-1', cameraImage: '/camera-zone-a.webp', x: 5, y: 10, w: 35, h: 40, currentWorkId: 'pit-a' },
-  { id: 'zone-b', name: 'Зона B — Бетонирование', cameraId: 'cam-2', cameraImage: '/camera-zone-b.webp', x: 45, y: 10, w: 35, h: 45, currentWorkId: 'concrete-c' },
-  { id: 'zone-c', name: 'Зона C — Армирование', cameraId: 'cam-3', cameraImage: '/camera-zone-c.webp', x: 5, y: 55, w: 35, h: 35, currentWorkId: 'armature-2' },
+  { id: 'zone-a', name: 'Зона A — Котлован', cameraId: 'cam-1', cameraImage: './camera-zone-a.webp', x: 5, y: 10, w: 35, h: 40, currentWorkId: 'pit-a' },
+  { id: 'zone-b', name: 'Зона B — Бетонирование', cameraId: 'cam-2', cameraImage: './camera-zone-b.webp', x: 45, y: 10, w: 35, h: 45, currentWorkId: 'concrete-c' },
+  { id: 'zone-c', name: 'Зона C — Армирование', cameraId: 'cam-3', cameraImage: './camera-zone-c.webp', x: 5, y: 55, w: 35, h: 35, currentWorkId: 'armature-2' },
 ];
 
 const severnySnapshots: CameraSnapshot[] = [
-  { id: 'snap-1', zoneId: 'zone-a', cameraId: 'cam-1', timestamp: '2026-09-28 08:15', image: '/camera-zone-a.webp', detections: [
+  { id: 'snap-1', zoneId: 'zone-a', cameraId: 'cam-1', timestamp: '2026-09-28 08:15', image: './camera-zone-a.webp', detections: [
     { x: 15, y: 40, w: 18, h: 22, equipment: 'excavator', confidence: 0.92 },
     { x: 45, y: 55, w: 14, h: 18, equipment: 'dump_truck', confidence: 0.87 },
     { x: 62, y: 58, w: 13, h: 16, equipment: 'dump_truck', confidence: 0.81 },
     { x: 75, y: 20, w: 10, h: 15, equipment: 'autocran', confidence: 0.95 },
   ] },
-  { id: 'snap-2', zoneId: 'zone-b', cameraId: 'cam-2', timestamp: '2026-09-28 08:15', image: '/camera-zone-b.webp', detections: [
+  { id: 'snap-2', zoneId: 'zone-b', cameraId: 'cam-2', timestamp: '2026-09-28 08:15', image: './camera-zone-b.webp', detections: [
     { x: 20, y: 35, w: 16, h: 20, equipment: 'crane_manipulator', confidence: 0.89 },
     { x: 50, y: 50, w: 15, h: 18, equipment: 'mixer', confidence: 0.85 },
     { x: 72, y: 25, w: 12, h: 16, equipment: 'autocran', confidence: 0.93 },
   ] },
-  { id: 'snap-3', zoneId: 'zone-c', cameraId: 'cam-3', timestamp: '2026-09-28 08:15', image: '/camera-zone-c.webp', detections: [
+  { id: 'snap-3', zoneId: 'zone-c', cameraId: 'cam-3', timestamp: '2026-09-28 08:15', image: './camera-zone-c.webp', detections: [
     { x: 25, y: 45, w: 15, h: 19, equipment: 'bucket_loader_standard', confidence: 0.84 },
     { x: 55, y: 30, w: 12, h: 15, equipment: 'dump_truck', confidence: 0.76 },
   ] },
@@ -323,6 +365,7 @@ const severnyEvents: CalendarEvent[] = [
   { id: 'e19', workId: 'monolith-c', title: 'Монолит, секция C', contractor: 'ФундаментСтрой', date: '2026-09-28', startHour: 10, endHour: 14, status: 'delayed', delayMinutes: 140, note: 'Опалубка не доставлена' },
   { id: 'e20', workId: 'concrete-c', title: 'Бетонирование, секция C', contractor: 'ФундаментСтрой', date: '2026-09-28', startHour: 14, endHour: 17, status: 'idle', note: 'Насос стоит, 4-й день' },
   { id: 'e21', workId: 'facade-1', title: 'Доставка плитки (критичная)', contractor: 'ТД Керамика', date: '2026-09-28', startHour: 11.5, endHour: 12.5, status: 'delayed', delayMinutes: 45, note: 'Опоздание 45мин — монтаж стоит' },
+  { id: 'e22', workId: 'pit-a', title: 'Котлован, зона A', contractor: 'ООО СтройМонтаж', date: new Date().toISOString().split('T')[0], startHour: 8, endHour: 12, status: 'confirmed', note: 'Работа по плану' },
 ];
 
 const severnyMonthSummaries: DaySummary[] = [
@@ -350,7 +393,7 @@ const severnyMonthSummaries: DaySummary[] = [
 
 const meridianSummary: ProjectSummary = {
   objectName: 'ТЦ «Меридиан»',
-  dateLabel: '28 сен 2026', schedule: 'Пятидневка', cameras: 2,
+  dateLabel: dateLabelString(new Date()), schedule: 'Пятидневка', cameras: 2,
   totalWorks: 4, requiresReaction: 0, askReason: 1, inProgress: 2, outOfScope: 1,
   planPct: 48, confirmedPct: 42, gapPct: 6, gapDays: 2,
   totalDelayDays: 2, compensatedDays: 0, netDelayDays: 2,
@@ -366,16 +409,16 @@ const meridianWorkItems: WorkItem[] = [
 ];
 
 const meridianZones: SiteZone[] = [
-  { id: 'mz-a', name: 'Зона 1 — Каркас', cameraId: 'cam-1', cameraImage: '/camera-zone-a.webp', x: 10, y: 15, w: 40, h: 40, currentWorkId: 'm1' },
-  { id: 'mz-b', name: 'Зона 2 — Монолит', cameraId: 'cam-2', cameraImage: '/camera-zone-b.webp', x: 55, y: 15, w: 35, h: 40, currentWorkId: 'm2' },
+  { id: 'mz-a', name: 'Зона 1 — Каркас', cameraId: 'cam-1', cameraImage: './camera-zone-a.webp', x: 10, y: 15, w: 40, h: 40, currentWorkId: 'm1' },
+  { id: 'mz-b', name: 'Зона 2 — Монолит', cameraId: 'cam-2', cameraImage: './camera-zone-b.webp', x: 55, y: 15, w: 35, h: 40, currentWorkId: 'm2' },
 ];
 
 const meridianSnapshots: CameraSnapshot[] = [
-  { id: 'ms1', zoneId: 'mz-a', cameraId: 'cam-1', timestamp: '2026-09-28 08:15', image: '/camera-zone-a.webp', detections: [
-    { x: 20, y: 35, w: 16, h: 20, equipment: 'autocran', confidence: 0.91 },
-    { x: 50, y: 50, w: 14, h: 18, equipment: 'truck', confidence: 0.83 },
+  { id: 'ms1', zoneId: 'mz-a', cameraId: 'cam-1', timestamp: '2026-09-28 08:15', image: './camera-zone-a.webp', detections: [
+    { x: 25, y: 30, w: 20, h: 25, equipment: 'autocran', confidence: 0.93 },
+    { x: 55, y: 45, w: 16, h: 20, equipment: 'truck', confidence: 0.88 },
   ] },
-  { id: 'ms2', zoneId: 'mz-b', cameraId: 'cam-2', timestamp: '2026-09-28 08:15', image: '/camera-zone-b.webp', detections: [
+  { id: 'ms2', zoneId: 'mz-b', cameraId: 'cam-2', timestamp: '2026-09-28 08:15', image: './camera-zone-b.webp', detections: [
     { x: 25, y: 40, w: 15, h: 19, equipment: 'mixer', confidence: 0.88 },
   ] },
 ];
@@ -431,7 +474,7 @@ const meridianMonthSummaries: DaySummary[] = [
 
 const schoolSummary: ProjectSummary = {
   objectName: 'Школа №147',
-  dateLabel: '28 сен 2026', schedule: 'Пятидневка', cameras: 2,
+  dateLabel: dateLabelString(new Date()), schedule: 'Пятидневка', cameras: 2,
   totalWorks: 3, requiresReaction: 0, askReason: 0, inProgress: 3, outOfScope: 0,
   planPct: 60, confirmedPct: 60, gapPct: 0, gapDays: 0,
   totalDelayDays: 0, compensatedDays: 0, netDelayDays: 0,
@@ -446,16 +489,16 @@ const schoolWorkItems: WorkItem[] = [
 ];
 
 const schoolZones: SiteZone[] = [
-  { id: 'sz-a', name: 'Зона 1 — Благоустройство', cameraId: 'cam-1', cameraImage: '/camera-zone-c.webp', x: 10, y: 15, w: 40, h: 40, currentWorkId: 's3' },
-  { id: 'sz-b', name: 'Зона 2 — Отделка', cameraId: 'cam-2', cameraImage: '/camera-zone-b.webp', x: 55, y: 15, w: 35, h: 40, currentWorkId: 's2' },
+  { id: 'sz-a', name: 'Зона 1 — Благоустройство', cameraId: 'cam-1', cameraImage: './camera-zone-c.webp', x: 10, y: 15, w: 40, h: 40, currentWorkId: 's3' },
+  { id: 'sz-b', name: 'Зона 2 — Отделка', cameraId: 'cam-2', cameraImage: './camera-zone-b.webp', x: 55, y: 15, w: 35, h: 40, currentWorkId: 's2' },
 ];
 
 const schoolSnapshots: CameraSnapshot[] = [
-  { id: 'ss1', zoneId: 'sz-a', cameraId: 'cam-1', timestamp: '2026-09-28 08:15', image: '/camera-zone-c.webp', detections: [
-    { x: 20, y: 40, w: 15, h: 20, equipment: 'excavator', confidence: 0.90 },
-    { x: 50, y: 50, w: 14, h: 18, equipment: 'gazelle', confidence: 0.85 },
+  { id: 'ss1', zoneId: 'sz-a', cameraId: 'cam-1', timestamp: '2026-09-28 08:15', image: './camera-zone-c.webp', detections: [
+    { x: 30, y: 35, w: 18, h: 22, equipment: 'excavator', confidence: 0.90 },
+    { x: 60, y: 50, w: 14, h: 18, equipment: 'dump_truck', confidence: 0.84 },
   ] },
-  { id: 'ss2', zoneId: 'sz-b', cameraId: 'cam-2', timestamp: '2026-09-28 08:15', image: '/camera-zone-b.webp', detections: [
+  { id: 'ss2', zoneId: 'sz-b', cameraId: 'cam-2', timestamp: '2026-09-28 08:15', image: './camera-zone-b.webp', detections: [
     { x: 30, y: 35, w: 15, h: 20, equipment: 'gazelle', confidence: 0.87 },
   ] },
 ];
@@ -526,8 +569,8 @@ export const PROJECTS: Project[] = [
     weakLinks: severnyWeakLinks,
     calendarEvents: severnyEvents,
     monthSummaries: severnyMonthSummaries,
-    todayDate: '2026-09-28',
-    weekDates: ['2026-09-24', '2026-09-25', '2026-09-26', '2026-09-27', '2026-09-28'],
+    todayDate: localDateString(new Date()),
+    weekDates: currentWeekDates(),
   },
   {
     id: 'meridian',
@@ -548,8 +591,8 @@ export const PROJECTS: Project[] = [
     weakLinks: meridianWeakLinks,
     calendarEvents: meridianEvents,
     monthSummaries: meridianMonthSummaries,
-    todayDate: '2026-09-28',
-    weekDates: ['2026-09-24', '2026-09-25', '2026-09-26', '2026-09-27', '2026-09-28'],
+    todayDate: localDateString(new Date()),
+    weekDates: currentWeekDates(),
   },
   {
     id: 'school147',
@@ -570,7 +613,7 @@ export const PROJECTS: Project[] = [
     weakLinks: schoolWeakLinks,
     calendarEvents: schoolEvents,
     monthSummaries: schoolMonthSummaries,
-    todayDate: '2026-09-28',
-    weekDates: ['2026-09-24', '2026-09-25', '2026-09-26', '2026-09-27', '2026-09-28'],
+    todayDate: localDateString(new Date()),
+    weekDates: currentWeekDates(),
   },
 ];
